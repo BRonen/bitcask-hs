@@ -20,6 +20,19 @@ description:         Please see the README on GitHub at <https://github.com/bron
 
 dependencies:
 - base >= 4.7 && < 5
+- binary
+- bytestring
+- containers
+- digest
+- directory
+- filepath
+- interpolate
+- time
+- utf8-string
+
+default-extensions:
+- BangPatterns
+- QuasiQuotes
 
 ghc-options:
 - -Wall
