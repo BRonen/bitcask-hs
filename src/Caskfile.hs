@@ -42,6 +42,9 @@ getLastFileId = do
         [] -> pure 0
         _ -> pure $ maximum filenames
 
+getCurrentFileId :: IO Int
+getCurrentFileId = fmap (1+) getLastFileId
+
 prependEntry :: Int -> Entry -> IO Entry
 prependEntry fileid entry = do
     let path = "temp/" ++ show fileid ++ ".cask"

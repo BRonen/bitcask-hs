@@ -12,7 +12,7 @@ type Keydir = Map.Map Key KeydirEntry
 
 mapEntriesToKeydir :: [(Int, Entry)] -> Keydir
 mapEntriesToKeydir [] = Map.empty
-mapEntriesToKeydir ((offset, Entry fileid timestamp ksize vsize key value):entries) =
+mapEntriesToKeydir ((offset, Entry _ timestamp _ vsize key _):entries) =
     let entry = KeydirEntry 18 vsize offset timestamp in
     Map.insert key entry $ mapEntriesToKeydir entries
 
