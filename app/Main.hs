@@ -4,7 +4,6 @@ import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.UTF8 as BU
 import qualified Data.Map as Map
 
--- import Data.Binary (Binary, encodeFile)
 import Data.Binary.Put (putInt64le, putWord32le, putLazyByteString, runPut)
 import Data.Binary.Get (getInt64le, getWord32le, getLazyByteString, runGet, Get)
 import Data.Digest.CRC32 (crc32)
