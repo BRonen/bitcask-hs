@@ -92,15 +92,32 @@ prependEntry fileid entry = do
     B.writeFile path $ (serialiseEntry entry) <> contents
     pure entry
 
-readEntries :: Int -> IO Entry
+getEntryLength :: Entry -> Int
+getEntryLength (Entry _ _ ksize vsize _ _) = fromIntegral $ 4 + 8 + 8 + 8 + ksize + vsize
+
+readEntry :: B.ByteString -> IO Entry
+readEntry content = do
+    pure $ runGet deserialiseEntry content
+
+deserialiseWithOffset :: B.ByteString -> Int -> IO [Entry]
+deserialiseWithOffset content offset = do
+    let content' = B.drop (fromIntegral offset) content
+    if content' == B.empty
+    then do pure []
+    else do
+        entry <- readEntry content'
+        entries <- deserialiseWithOffset content $ offset + (getEntryLength entry)
+        pure $ entry : entries
+
+readEntries :: Int -> IO [Entry]
 readEntries fileid = do
     let path = "temp/" ++ show fileid ++ ".cask"
-    contents <- B.readFile path
-    pure $ runGet deserialiseEntry contents
+    content <- B.readFile path
+    deserialiseWithOffset content 0
 
 main :: IO ()
 main = do
-    currentFileid <- fmap (1+) getLastFileId
+    currentFileid <- fmap (0+) getLastFileId
     t <- nanosSinceEpoch
     a <- prependEntry currentFileid $ buildEntry t "hello" "world"
     print $ show a
