@@ -7,5 +7,35 @@
 @package bitcask-hs
 @version 0.1.0.0
 
-module Lib
-someFunc :: IO ()
+module Entry
+type Checksum = Word32
+type Timestamp = Int64
+type FieldSize = Int64
+type Key = ByteString
+type Value = ByteString
+data Entry
+Entry :: Checksum -> Timestamp -> FieldSize -> FieldSize -> Key -> Value -> Entry
+nanosSinceEpoch :: IO Timestamp
+buildEntry :: Timestamp -> Key -> Value -> Entry
+getEntryLength :: Entry -> Int
+instance GHC.Classes.Eq Entry.Entry
+instance GHC.Show.Show Entry.Entry
+
+module Caskfile
+serialiseEntry :: Entry -> ByteString
+deserialiseEntry :: Get Entry
+listCaskFiles :: IO [FilePath]
+getLastFileId :: IO Int
+prependEntry :: Int -> Entry -> IO Entry
+readEntry :: ByteString -> IO Entry
+deserialiseWithOffset :: ByteString -> Int -> IO [(Int, Entry)]
+readEntries :: FilePath -> IO [(Int, Entry)]
+
+module Keydir
+data KeydirEntry
+KeydirEntry :: Checksum -> FieldSize -> Int -> Timestamp -> KeydirEntry
+type Keydir = Map Key KeydirEntry
+mapEntriesToKeydir :: [(Int, Entry)] -> Keydir
+buildKeyDir :: IO Keydir
+instance GHC.Classes.Eq Keydir.KeydirEntry
+instance GHC.Show.Show Keydir.KeydirEntry

@@ -67,7 +67,7 @@ packages:
 # compiler-check: newer-minor
 
 build:
-  haddock: false
+  haddock: true
   haddock-arguments:
     haddock-args:
     - "--odir=./docs"

@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Entry</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy.UTF8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BU</span></span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Int</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int64</span></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Digest.CRC32</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">crc32</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.String.Interpolate</span></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Time</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">nominalDiffTimeToSeconds</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Time.Clock.POSIX</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">getPOSIXTime</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Word</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Word32</span></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">type</span><span> </span><span id="Checksum"><span class="annot"><a href="Entry.html#Checksum"><span class="hs-identifier hs-var">Checksum</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word32</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">type</span><span> </span><span id="Timestamp"><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier hs-var">Timestamp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">type</span><span> </span><span id="FieldSize"><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-var">FieldSize</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">type</span><span> </span><span id="Key"><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-var">Key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">type</span><span> </span><span id="Value"><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-var">Value</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">data</span><span> </span><span id="Entry"><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-var">Entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Entry"><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-var">Entry</span></a></span></span><span> </span><span class="annot"><a href="Entry.html#Checksum"><span class="hs-identifier hs-type">Checksum</span></a></span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier hs-type">Timestamp</span></a></span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-type">FieldSize</span></a></span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-type">FieldSize</span></a></span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span>
+</span><span id="line-20"></span><span>    </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679067511"><span id="local-6989586621679067522"><span class="annot"><span class="annottext">Entry -&gt; Entry -&gt; Bool
+(Entry -&gt; Entry -&gt; Bool) -&gt; (Entry -&gt; Entry -&gt; Bool) -&gt; Eq Entry
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Entry -&gt; Entry -&gt; Bool
+== :: Entry -&gt; Entry -&gt; Bool
+$c/= :: Entry -&gt; Entry -&gt; Bool
+/= :: Entry -&gt; Entry -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679067527"><span id="local-6989586621679067532"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-23"></span><span>  </span><span id="local-6989586621679067544"><span class="annot"><span class="annottext">show :: Entry -&gt; String
+</span><a href="#local-6989586621679067544"><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span id="local-6989586621679067546"><span class="annot"><span class="annottext">Checksum
+</span><a href="#local-6989586621679067546"><span class="hs-identifier hs-var">fileid</span></a></span></span><span> </span><span id="local-6989586621679067547"><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067547"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span id="local-6989586621679067548"><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067548"><span class="hs-identifier hs-var">ksize</span></a></span></span><span> </span><span id="local-6989586621679067549"><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067549"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679067550"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067550"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679067551"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067551"><span class="hs-identifier hs-var">value</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><span class="">[i|#{fileid'} #{timestamp'} #{ksize'} #{vsize'} #{key'} #{value'}|]</span></span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-26"></span><span>        </span><span id="local-6989586621679067552"><span class="annot"><span class="annottext">fileid' :: String
+</span><a href="#local-6989586621679067552"><span class="hs-identifier hs-var hs-var">fileid'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Checksum -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Checksum
+</span><a href="#local-6989586621679067546"><span class="hs-identifier hs-var">fileid</span></a></span><span>
+</span><span id="line-27"></span><span>        </span><span id="local-6989586621679067553"><span class="annot"><span class="annottext">timestamp' :: String
+</span><a href="#local-6989586621679067553"><span class="hs-identifier hs-var hs-var">timestamp'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067547"><span class="hs-identifier hs-var">timestamp</span></a></span><span>
+</span><span id="line-28"></span><span>        </span><span id="local-6989586621679067554"><span class="annot"><span class="annottext">ksize' :: String
+</span><a href="#local-6989586621679067554"><span class="hs-identifier hs-var hs-var">ksize'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067548"><span class="hs-identifier hs-var">ksize</span></a></span><span>
+</span><span id="line-29"></span><span>        </span><span id="local-6989586621679067555"><span class="annot"><span class="annottext">vsize' :: String
+</span><a href="#local-6989586621679067555"><span class="hs-identifier hs-var hs-var">vsize'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067549"><span class="hs-identifier hs-var">vsize</span></a></span><span>
+</span><span id="line-30"></span><span>        </span><span id="local-6989586621679067556"><span class="annot"><span class="annottext">key' :: String
+</span><a href="#local-6989586621679067556"><span class="hs-identifier hs-var hs-var">key'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; String
+</span><span class="hs-identifier hs-var">BU.toString</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067550"><span class="hs-identifier hs-var">key</span></a></span><span>
+</span><span id="line-31"></span><span>        </span><span id="local-6989586621679067557"><span class="annot"><span class="annottext">value' :: String
+</span><a href="#local-6989586621679067557"><span class="hs-identifier hs-var hs-var">value'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; String
+</span><span class="hs-identifier hs-var">BU.toString</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067551"><span class="hs-identifier hs-var">value</span></a></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="annot"><a href="Entry.html#nanosSinceEpoch"><span class="hs-identifier hs-type">nanosSinceEpoch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier hs-type">Timestamp</span></a></span><span>
+</span><span id="line-34"></span><span id="nanosSinceEpoch"><span class="annot"><span class="annottext">nanosSinceEpoch :: IO FieldSize
+</span><a href="Entry.html#nanosSinceEpoch"><span class="hs-identifier hs-var hs-var">nanosSinceEpoch</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>    </span><span id="local-6989586621679067569"><span class="annot"><span class="annottext">POSIXTime
+</span><a href="#local-6989586621679067569"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO POSIXTime
+</span><span class="hs-identifier hs-var">getPOSIXTime</span></span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">FieldSize -&gt; IO FieldSize
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(FieldSize -&gt; IO FieldSize) -&gt; FieldSize -&gt; IO FieldSize
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Pico -&gt; FieldSize
+forall b. Integral b =&gt; Pico -&gt; b
+forall a b. (RealFrac a, Integral b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">floor</span></span><span> </span><span class="annot"><span class="annottext">(Pico -&gt; FieldSize) -&gt; Pico -&gt; FieldSize
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Pico
+</span><span class="hs-number">1e9</span></span><span> </span><span class="annot"><span class="annottext">Pico -&gt; Pico -&gt; Pico
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">POSIXTime -&gt; Pico
+</span><span class="hs-identifier hs-var">nominalDiffTimeToSeconds</span></span><span> </span><span class="annot"><span class="annottext">POSIXTime
+</span><a href="#local-6989586621679067569"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="annot"><a href="Entry.html#buildEntry"><span class="hs-identifier hs-type">buildEntry</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier hs-type">Timestamp</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span>
+</span><span id="line-39"></span><span id="buildEntry"><span class="annot"><span class="annottext">buildEntry :: FieldSize -&gt; Key -&gt; Key -&gt; Entry
+</span><a href="Entry.html#buildEntry"><span class="hs-identifier hs-var hs-var">buildEntry</span></a></span></span><span> </span><span id="local-6989586621679067573"><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067573"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span id="local-6989586621679067574"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067574"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679067575"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067575"><span class="hs-identifier hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Checksum
+-&gt; FieldSize -&gt; FieldSize -&gt; FieldSize -&gt; Key -&gt; Key -&gt; Entry
+</span><a href="Entry.html#Entry"><span class="hs-identifier hs-var">Entry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
+</span><a href="#local-6989586621679067576"><span class="hs-identifier hs-var">checksum</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067573"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067577"><span class="hs-identifier hs-var">keyl</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067578"><span class="hs-identifier hs-var">valuel</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067574"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067575"><span class="hs-identifier hs-var">value</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-41"></span><span>        </span><span id="local-6989586621679067576"><span class="annot"><span class="annottext">checksum :: Checksum
+</span><a href="#local-6989586621679067576"><span class="hs-identifier hs-var hs-var">checksum</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; Checksum
+forall a. CRC32 a =&gt; a -&gt; Checksum
+</span><span class="hs-identifier hs-var">crc32</span></span><span> </span><span class="annot"><span class="annottext">(Key -&gt; Checksum) -&gt; Key -&gt; Checksum
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Key
+</span><span class="hs-identifier hs-var">BU.fromString</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Key) -&gt; String -&gt; Key
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067573"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067577"><span class="hs-identifier hs-var">keyl</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067578"><span class="hs-identifier hs-var">valuel</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067585"><span class="hs-identifier hs-var">key'</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067586"><span class="hs-identifier hs-var">value'</span></a></span><span>
+</span><span id="line-42"></span><span>        </span><span id="local-6989586621679067577"><span class="annot"><span class="annottext">keyl :: FieldSize
+</span><a href="#local-6989586621679067577"><span class="hs-identifier hs-var hs-var">keyl</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; FieldSize
+</span><span class="hs-identifier hs-var">B.length</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067574"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-type">FieldSize</span></a></span><span>
+</span><span id="line-43"></span><span>        </span><span id="local-6989586621679067578"><span class="annot"><span class="annottext">valuel :: FieldSize
+</span><a href="#local-6989586621679067578"><span class="hs-identifier hs-var hs-var">valuel</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; FieldSize
+</span><span class="hs-identifier hs-var">B.length</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067575"><span class="hs-identifier hs-var">value</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-type">FieldSize</span></a></span><span>
+</span><span id="line-44"></span><span>        </span><span id="local-6989586621679067585"><span class="annot"><span class="annottext">key' :: String
+</span><a href="#local-6989586621679067585"><span class="hs-identifier hs-var hs-var">key'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; String
+</span><span class="hs-identifier hs-var">BU.toString</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067574"><span class="hs-identifier hs-var">key</span></a></span><span>
+</span><span id="line-45"></span><span>        </span><span id="local-6989586621679067586"><span class="annot"><span class="annottext">value' :: String
+</span><a href="#local-6989586621679067586"><span class="hs-identifier hs-var hs-var">value'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; String
+</span><span class="hs-identifier hs-var">BU.toString</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679067575"><span class="hs-identifier hs-var">value</span></a></span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="annot"><a href="Entry.html#getEntryLength"><span class="hs-identifier hs-type">getEntryLength</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-48"></span><span id="getEntryLength"><span class="annot"><span class="annottext">getEntryLength :: Entry -&gt; Int
+</span><a href="Entry.html#getEntryLength"><span class="hs-identifier hs-var hs-var">getEntryLength</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679067589"><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067589"><span class="hs-identifier hs-var">ksize</span></a></span></span><span> </span><span id="local-6989586621679067590"><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067590"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; Int
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">(FieldSize -&gt; Int) -&gt; FieldSize -&gt; Int
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; FieldSize -&gt; FieldSize
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; FieldSize -&gt; FieldSize
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; FieldSize -&gt; FieldSize
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; FieldSize -&gt; FieldSize
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067589"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSize -&gt; FieldSize -&gt; FieldSize
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
+</span><a href="#local-6989586621679067590"><span class="hs-identifier hs-var">vsize</span></a></span><span>
+</span><span id="line-49"></span><span>
+</span><span id="line-50"></span><span class="hs-comment">{- 
+checkSum :: Checksum -&gt; String -&gt; String -&gt; Bool
+checkSum checksum key value = checksum == checksum'
+    where
+        checksum' = crc32 $ BU.fromString $ key ++ value -}</span><span>
+</span><span id="line-55"></span></pre></body></html>
