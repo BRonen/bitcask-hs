@@ -3,8 +3,8 @@ module Entry where
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.UTF8 as BU
 
-import Data.Int (Int64)
 import Data.Digest.CRC32 (crc32)
+import Data.Int (Int64)
 import Data.String.Interpolate
 import Data.Time (nominalDiffTimeToSeconds)
 import Data.Time.Clock.POSIX (getPOSIXTime)

@@ -28,6 +28,7 @@ library
       Caskfile
       Entry
       Keydir
+      Serializable
   other-modules:
       Paths_bitcask_hs
   autogen-modules:

@@ -5,6 +5,7 @@ import qualified Data.ByteString.Lazy.UTF8 as BU
 import Entry
 import Caskfile
 import Keydir
+import Serializable
 
 main :: IO ()
 main = do
