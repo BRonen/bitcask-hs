@@ -45,17 +45,6 @@ deserialiseEntry = do
     value <- getLazyByteString vsize
     pure $ Entry checksum timestamp ksize vsize key value
 
-{- instance Binary Entry where
-  put (Entry fileid timestamp ksize vsize key value) =
-    fileid <> timestamp <> ksize <> vsize <> key <> value
-    where
-        fileid' = encode fileid
-        timestamp' = encode timestamp
-        ksize' = encode ksize
-        vsize' = encode vsize
-        key' = encode key
-        value' = encode value -}
-
 data KeydirEntry = KeydirEntry Int Int Int Int64
     deriving (Show, Eq)
 
