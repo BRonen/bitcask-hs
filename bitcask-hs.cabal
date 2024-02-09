@@ -25,6 +25,9 @@ source-repository head
 
 library
   exposed-modules:
+      Caskfile
+      Entry
+      Keydir
       Lib
   other-modules:
       Paths_bitcask_hs
