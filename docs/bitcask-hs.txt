@@ -21,14 +21,18 @@ getEntryLength :: Entry -> Int
 instance GHC.Classes.Eq Entry.Entry
 instance GHC.Show.Show Entry.Entry
 
+module Serializable
+class Serializable a
+encode :: Serializable a => a -> ByteString
+decode :: Serializable a => ByteString -> a
+instance Serializable.Serializable Entry.Entry
+
 module Caskfile
-serialiseEntry :: Entry -> ByteString
-deserialiseEntry :: Get Entry
 listCaskFiles :: IO [FilePath]
 getLastFileId :: IO Int
+getCurrentFileId :: IO Int
 prependEntry :: Int -> Entry -> IO Entry
-readEntry :: ByteString -> IO Entry
-deserialiseWithOffset :: ByteString -> Int -> IO [(Int, Entry)]
+decodeWithOffset :: ByteString -> Int -> IO [(Int, Entry)]
 readEntries :: FilePath -> IO [(Int, Entry)]
 
 module Keydir
