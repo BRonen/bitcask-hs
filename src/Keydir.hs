@@ -37,3 +37,6 @@ buildKeyDir dirpath = do
         pure $ mapEntriesToKeydir caskpath entries
         ) caskfiles
     pure $ Map.unions keydirs
+
+listKeysFromKeydir :: Keydir -> [Key]
+listKeysFromKeydir = Map.keys

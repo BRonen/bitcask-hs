@@ -25,6 +25,7 @@ dependencies:
 - containers
 - digest
 - directory
+- filelock
 - filepath
 - interpolate
 - time
@@ -32,6 +33,7 @@ dependencies:
 
 default-extensions:
 - BangPatterns
+- OverloadedStrings
 - QuasiQuotes
 
 ghc-options:
