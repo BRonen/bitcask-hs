@@ -51,10 +51,10 @@ delete handle key = do
         Left err -> Left err
         _ -> Right ()
 
-{- listKeys :: Handle -> IO [Key]
+listKeys :: Handle -> IO [Key]
 listKeys (Handle filepath _ _) = do
     keydir <- buildKeyDir (takeDirectory filepath)
-    pure $ listKeysFromKeydir keydir -}
+    pure $ listKeysFromKeydir keydir
 
 {- merge :: Handle -> ()
 

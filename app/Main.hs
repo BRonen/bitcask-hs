@@ -21,5 +21,6 @@ main = do
                     value <- BC.get handle "hello"
                     print value
                 Left err -> print err
+            BC.listKeys handle >>= print
             BC.close handle
         Left err -> print err
