@@ -1,4 +1,4 @@
-module Caskfile where
+module Caskfile (getFileIdFromPath, listCaskFiles, removePrevFiles, getLastFileId, getCurrentFileId, prependEntry, readValueFromPos, createCaskLock, readEntries)  where
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -56,7 +56,7 @@ decodeWithOffset content offset = do
     then do pure []
     else do
         let entry = decode content'
-        entries <- decodeWithOffset content $ offset + (getEntryLength entry)
+        entries <- decodeWithOffset content $ offset + getEntryLength entry
         pure $ (offset, entry) : entries
 
 readEntries :: FilePath -> IO [(Int, Entry)]
