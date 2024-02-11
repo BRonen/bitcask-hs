@@ -45,7 +45,7 @@ getCurrentFileId dirpath = fmap (1+) (getLastFileId dirpath)
 prependEntry :: FilePath -> Entry -> IO Entry
 prependEntry filepath entry = do
     exists <- doesFileExist filepath
-    !contents <- if exists then B.readFile filepath else pure B.empty
+    contents <- if exists then B.readFile filepath else pure B.empty
     BL.writeFile filepath $ encode entry <> BL.fromStrict contents
     pure entry
 
