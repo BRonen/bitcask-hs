@@ -28,6 +28,10 @@ getValueFromKeydir keydir key = do
             pure $ Just value
         Nothing -> pure Nothing
 
+compareByTimestamp :: KeydirEntry -> KeydirEntry -> KeydirEntry
+compareByTimestamp left@(KeydirEntry _ _ _ timestamp) right@(KeydirEntry _ _ _ timestamp') =
+    if timestamp > timestamp' then left else right
+
 buildKeyDir :: FilePath -> IO Keydir
 buildKeyDir dirpath = do
     caskfiles <- listCaskFiles dirpath
@@ -36,7 +40,7 @@ buildKeyDir dirpath = do
         entries <- readEntries caskpath
         pure $ mapEntriesToKeydir caskpath entries
         ) caskfiles
-    pure $ Map.unions keydirs
+    pure $ Map.unionsWith compareByTimestamp keydirs
 
 listKeysFromKeydir :: Keydir -> [Key]
 listKeysFromKeydir = Map.keys
