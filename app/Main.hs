@@ -12,8 +12,8 @@ main = do
     case handle' of
         Right handle -> do
             print "success"
-            BC.put handle "hello" "world"
-            entry <- BC.put handle "hello1" "world2"
+            BC.put handle "hello3" "world3"
+            entry <- BC.put handle "hello4" "world5"
             _ <- BC.delete handle "hello"
             case entry of
                 Right entry' -> do

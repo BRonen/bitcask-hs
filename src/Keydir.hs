@@ -2,7 +2,6 @@ module Keydir where
 
 import qualified Data.Map as Map
 
-import System.FilePath ((</>))
 import Caskfile (listCaskFiles, readEntries, getFileIdFromPath, readValueFromPos)
 import Entry (Entry (..), Checksum, FieldSize, Timestamp, Key, Value)
 
@@ -33,7 +32,6 @@ buildKeyDir dirpath = do
     keydirs <- mapM (\caskfile -> do
         let caskpath = dirpath ++ "/" ++ caskfile
         entries <- readEntries caskpath
-        print entries
         pure $ mapEntriesToKeydir caskpath entries
         ) caskfiles
     pure $ Map.unions keydirs

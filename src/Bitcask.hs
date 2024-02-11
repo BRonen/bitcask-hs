@@ -39,7 +39,6 @@ get :: Handle -> Key -> IO (Maybe Value)
 get (Handle filepath _ _) key = do
     keydir <- buildKeyDir (takeDirectory filepath)
     value <- getValueFromKeydir keydir key
-    print value
     pure $ case value of
         Just value -> if value == tombstone then Nothing else Just value
         Nothing -> Nothing
@@ -56,9 +55,18 @@ listKeys (Handle filepath _ _) = do
     keydir <- buildKeyDir (takeDirectory filepath)
     pure $ listKeysFromKeydir keydir
 
-{- merge :: Handle -> ()
+merge :: Handle -> IO (Either String Handle)
+merge (Handle filepath _ filelock) = do
+    unlock filelock
+    handle <- open (takeDirectory filepath) true
+    case handle of
+        Right handle' -> do
+            keydir <- buildKeyDir (takeDirectory filepath)
+            let keys = listKeysFromKeydir keydir
 
-sync :: Handle -> () -}
+        _ -> handle
+
+{- sync :: Handle -> () -}
 
 close :: Handle -> IO ()
 close (Handle _ _ filelock) = unlockFile filelock
