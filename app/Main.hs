@@ -1,9 +1,5 @@
 module Main (main) where
 
-{- import Entry
-import Caskfile
-import Keydir -}
-
 import qualified Bitcask as BC
 
 main :: IO ()
