@@ -1,4 +1,4 @@
-module Entry (nanosSinceEpoch, buildEntry, getEntryLength) where
+module Entry (Entry (..), Checksum, Timestamp, FieldSize, Key, Value, nanosSinceEpoch, buildEntry, getEntryLength) where
 
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.UTF8 as BU
