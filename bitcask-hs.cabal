@@ -37,7 +37,6 @@ library
   hs-source-dirs:
       src
   default-extensions:
-      BangPatterns
       OverloadedStrings
       QuasiQuotes
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -64,7 +63,6 @@ executable bitcask-hs-exe
   hs-source-dirs:
       app
   default-extensions:
-      BangPatterns
       OverloadedStrings
       QuasiQuotes
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
@@ -93,7 +91,6 @@ test-suite bitcask-hs-test
   hs-source-dirs:
       test
   default-extensions:
-      BangPatterns
       OverloadedStrings
       QuasiQuotes
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N

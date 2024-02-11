@@ -32,7 +32,6 @@ dependencies:
 - utf8-string
 
 default-extensions:
-- BangPatterns
 - OverloadedStrings
 - QuasiQuotes
 
