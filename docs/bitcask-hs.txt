@@ -8,13 +8,14 @@
 @version 0.1.0.0
 
 module Entry
+data Entry
+Entry :: Checksum -> Timestamp -> FieldSize -> FieldSize -> Key -> Value -> Entry
 type Checksum = Word32
 type Timestamp = Int64
 type FieldSize = Int64
 type Key = ByteString
 type Value = ByteString
-data Entry
-Entry :: Checksum -> Timestamp -> FieldSize -> FieldSize -> Key -> Value -> Entry
+matchChecksum :: Entry -> Bool
 nanosSinceEpoch :: IO Timestamp
 buildEntry :: Timestamp -> Key -> Value -> Entry
 getEntryLength :: Entry -> Int
@@ -28,18 +29,30 @@ decode :: Serializable a => ByteString -> a
 instance Serializable.Serializable Entry.Entry
 
 module Caskfile
-listCaskFiles :: IO [FilePath]
-getLastFileId :: IO Int
-getCurrentFileId :: IO Int
-prependEntry :: Int -> Entry -> IO Entry
-decodeWithOffset :: ByteString -> Int -> IO [(Int, Entry)]
+getFileIdFromPath :: FilePath -> Int
+listCaskFiles :: FilePath -> IO [FilePath]
+removePrevFiles :: FilePath -> IO ()
+getLastFileId :: FilePath -> IO Int
+getCurrentFileId :: FilePath -> IO Int
+prependEntry :: FilePath -> Entry -> IO Entry
+readEntryFromPos :: FilePath -> Int64 -> Int64 -> Int64 -> IO Entry
+createCaskLock :: FilePath -> IO ()
 readEntries :: FilePath -> IO [(Int, Entry)]
 
 module Keydir
-data KeydirEntry
-KeydirEntry :: Checksum -> FieldSize -> Int -> Timestamp -> KeydirEntry
-type Keydir = Map Key KeydirEntry
-mapEntriesToKeydir :: [(Int, Entry)] -> Keydir
-buildKeyDir :: IO Keydir
+mapEntriesToKeydir :: FilePath -> [(Int, Entry)] -> Keydir
+getValueFromKeydir :: Keydir -> Key -> IO (Maybe Value)
+buildKeyDir :: FilePath -> IO Keydir
+listKeysFromKeydir :: Keydir -> [Key]
 instance GHC.Classes.Eq Keydir.KeydirEntry
 instance GHC.Show.Show Keydir.KeydirEntry
+
+module Bitcask
+open :: String -> Bool -> IO (Either String Handle)
+put :: Handle -> Key -> Value -> IO (Either String Entry)
+get :: Handle -> Key -> IO (Maybe Value)
+delete :: Handle -> Key -> IO (Either String ())
+listKeys :: Handle -> IO [Key]
+merge :: Handle -> IO (Either String Handle)
+close :: Handle -> IO ()
+instance GHC.Show.Show Bitcask.Handle

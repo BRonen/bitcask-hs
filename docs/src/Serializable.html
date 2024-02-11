@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Serializable</span><span> </span><span class="hs-keyword">where</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Serializable</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Serializable.html#Serializable"><span class="hs-identifier">Serializable</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Serializable.html#encode"><span class="hs-identifier">encode</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Serializable.html#decode"><span class="hs-identifier">decode</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-2"></span><span>
 </span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
 </span><span id="line-4"></span><span>
@@ -7,48 +7,48 @@
 </span><span id="line-7"></span><span>
 </span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-9"></span><span>
-</span><span id="line-10"></span><span class="hs-keyword">class</span><span> </span><span id="Serializable"><span class="annot"><a href="Serializable.html#Serializable"><span class="hs-identifier hs-var">Serializable</span></a></span></span><span> </span><span id="local-6989586621679068766"><span class="annot"><a href="#local-6989586621679068766"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-11"></span><span>    </span><span id="encode"><span class="annot"><a href="Serializable.html#encode"><span class="hs-identifier hs-type">encode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679068766"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span>
-</span><span id="line-12"></span><span>    </span><span id="decode"><span class="annot"><a href="Serializable.html#decode"><span class="hs-identifier hs-type">decode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068766"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">class</span><span> </span><span id="Serializable"><span class="annot"><a href="Serializable.html#Serializable"><span class="hs-identifier hs-var">Serializable</span></a></span></span><span> </span><span id="local-6989586621679073020"><span class="annot"><a href="#local-6989586621679073020"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>    </span><span id="encode"><span class="annot"><a href="Serializable.html#encode"><span class="hs-identifier hs-type">encode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679073020"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span>
+</span><span id="line-12"></span><span>    </span><span id="decode"><span class="annot"><a href="Serializable.html#decode"><span class="hs-identifier hs-type">decode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679073020"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-13"></span><span>
 </span><span id="line-14"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Serializable.html#Serializable"><span class="hs-identifier hs-type">Serializable</span></a></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-15"></span><span>    </span><span id="local-6989586621679068797"><span class="annot"><span class="annottext">encode :: Entry -&gt; ByteString
-</span><a href="Serializable.html#encode"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span id="local-6989586621679068799"><span class="annot"><span class="annottext">Checksum
-</span><a href="#local-6989586621679068799"><span class="hs-identifier hs-var">checksum</span></a></span></span><span> </span><span id="local-6989586621679068800"><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068800"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span id="local-6989586621679068801"><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068801"><span class="hs-identifier hs-var">ksize</span></a></span></span><span> </span><span id="local-6989586621679068802"><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068802"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679068803"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068803"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679068804"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068804"><span class="hs-identifier hs-var">value</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-15"></span><span>    </span><span id="local-6989586621679073051"><span class="annot"><span class="annottext">encode :: Entry -&gt; ByteString
+</span><a href="Serializable.html#encode"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span id="local-6989586621679073053"><span class="annot"><span class="annottext">Checksum
+</span><a href="#local-6989586621679073053"><span class="hs-identifier hs-var">checksum</span></a></span></span><span> </span><span id="local-6989586621679073054"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073054"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span id="local-6989586621679073055"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073055"><span class="hs-identifier hs-var">ksize</span></a></span></span><span> </span><span id="local-6989586621679073056"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073056"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679073057"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073057"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679073058"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073058"><span class="hs-identifier hs-var">value</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-16"></span><span>        </span><span class="annot"><span class="annottext">Put -&gt; ByteString
 </span><span class="hs-identifier hs-var">runPut</span></span><span> </span><span class="annot"><span class="annottext">(Put -&gt; ByteString) -&gt; Put -&gt; ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Checksum -&gt; Put
 </span><span class="hs-identifier hs-var">putWord32le</span></span><span> </span><span class="annot"><span class="annottext">Checksum
-</span><a href="#local-6989586621679068799"><span class="hs-identifier hs-var">checksum</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
+</span><a href="#local-6989586621679073053"><span class="hs-identifier hs-var">checksum</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Put
 </span><span class="hs-identifier hs-var">putInt64le</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068800"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
+</span><a href="#local-6989586621679073054"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Put
 </span><span class="hs-identifier hs-var">putInt64le</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068801"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
+</span><a href="#local-6989586621679073055"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Put
 </span><span class="hs-identifier hs-var">putInt64le</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068802"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
+</span><a href="#local-6989586621679073056"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Put
 </span><span class="hs-identifier hs-var">putLazyByteString</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068803"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
+</span><a href="#local-6989586621679073057"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Put -&gt; Put -&gt; Put
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Put
 </span><span class="hs-identifier hs-var">putLazyByteString</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068804"><span class="hs-identifier hs-var">value</span></a></span><span>
-</span><span id="line-17"></span><span>    </span><span id="local-6989586621679068805"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Entry
-</span><a href="Serializable.html#decode"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span id="local-6989586621679068806"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Checksum
+</span><a href="#local-6989586621679073058"><span class="hs-identifier hs-var">value</span></a></span><span>
+</span><span id="line-17"></span><span>    </span><span id="local-6989586621679073059"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Entry
+</span><a href="Serializable.html#decode"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span id="local-6989586621679073060"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Checksum
 -&gt; Timestamp
 -&gt; Timestamp
 -&gt; Timestamp
@@ -56,19 +56,19 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 -&gt; ByteString
 -&gt; Entry
 </span><a href="Entry.html#Entry"><span class="hs-identifier hs-var">Entry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
-</span><a href="#local-6989586621679068807"><span class="hs-identifier hs-var">checksum</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068808"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068809"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068810"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068811"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068812"><span class="hs-identifier hs-var">value</span></a></span><span>
+</span><a href="#local-6989586621679073061"><span class="hs-identifier hs-var">checksum</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073062"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073063"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073064"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073065"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073066"><span class="hs-identifier hs-var">value</span></a></span><span>
 </span><span id="line-18"></span><span>        </span><span class="hs-keyword">where</span><span>
-</span><span id="line-19"></span><span>            </span><span id="local-6989586621679068812"><span class="annot"><span class="annottext">value :: ByteString
-</span><a href="#local-6989586621679068812"><span class="hs-identifier hs-var hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Get ByteString -&gt; ByteString -&gt; ByteString
+</span><span id="line-19"></span><span>            </span><span id="local-6989586621679073066"><span class="annot"><span class="annottext">value :: ByteString
+</span><a href="#local-6989586621679073066"><span class="hs-identifier hs-var hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Get ByteString -&gt; ByteString -&gt; ByteString
 forall a. Get a -&gt; ByteString -&gt; a
 </span><span class="hs-identifier hs-var">runGet</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; Get ByteString
 </span><span class="hs-identifier hs-var">getLazyByteString</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068810"><span class="hs-identifier hs-var">vsize</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
+</span><a href="#local-6989586621679073064"><span class="hs-identifier hs-var">vsize</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">B.drop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Timestamp -&gt; Timestamp
 forall a. Num a =&gt; a -&gt; a -&gt; a
@@ -82,14 +82,14 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Timestamp -&gt; Timestamp
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068809"><span class="hs-identifier hs-var">ksize</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-20"></span><span>            </span><span id="local-6989586621679068811"><span class="annot"><span class="annottext">key :: ByteString
-</span><a href="#local-6989586621679068811"><span class="hs-identifier hs-var hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Get ByteString -&gt; ByteString -&gt; ByteString
+</span><a href="#local-6989586621679073063"><span class="hs-identifier hs-var">ksize</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>            </span><span id="local-6989586621679073065"><span class="annot"><span class="annottext">key :: ByteString
+</span><a href="#local-6989586621679073065"><span class="hs-identifier hs-var hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Get ByteString -&gt; ByteString -&gt; ByteString
 forall a. Get a -&gt; ByteString -&gt; a
 </span><span class="hs-identifier hs-var">runGet</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; Get ByteString
 </span><span class="hs-identifier hs-var">getLazyByteString</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
-</span><a href="#local-6989586621679068809"><span class="hs-identifier hs-var">ksize</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
+</span><a href="#local-6989586621679073063"><span class="hs-identifier hs-var">ksize</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">B.drop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Timestamp -&gt; Timestamp
 forall a. Num a =&gt; a -&gt; a -&gt; a
@@ -101,12 +101,12 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">8</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-21"></span><span>            </span><span id="local-6989586621679068810"><span class="annot"><span class="annottext">vsize :: Timestamp
-</span><a href="#local-6989586621679068810"><span class="hs-identifier hs-var hs-var">vsize</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Get Timestamp -&gt; ByteString -&gt; Timestamp
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>            </span><span id="local-6989586621679073064"><span class="annot"><span class="annottext">vsize :: Timestamp
+</span><a href="#local-6989586621679073064"><span class="hs-identifier hs-var hs-var">vsize</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Get Timestamp -&gt; ByteString -&gt; Timestamp
 forall a. Get a -&gt; ByteString -&gt; a
 </span><span class="hs-identifier hs-var">runGet</span></span><span> </span><span class="annot"><span class="annottext">Get Timestamp
-</span><span class="hs-identifier hs-var">getInt64le</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">getInt64le</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">B.drop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Timestamp -&gt; Timestamp
 forall a. Num a =&gt; a -&gt; a -&gt; a
@@ -115,30 +115,30 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">8</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-22"></span><span>            </span><span id="local-6989586621679068809"><span class="annot"><span class="annottext">ksize :: Timestamp
-</span><a href="#local-6989586621679068809"><span class="hs-identifier hs-var hs-var">ksize</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Get Timestamp -&gt; ByteString -&gt; Timestamp
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>            </span><span id="local-6989586621679073063"><span class="annot"><span class="annottext">ksize :: Timestamp
+</span><a href="#local-6989586621679073063"><span class="hs-identifier hs-var hs-var">ksize</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Get Timestamp -&gt; ByteString -&gt; Timestamp
 forall a. Get a -&gt; ByteString -&gt; a
 </span><span class="hs-identifier hs-var">runGet</span></span><span> </span><span class="annot"><span class="annottext">Get Timestamp
-</span><span class="hs-identifier hs-var">getInt64le</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">getInt64le</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">B.drop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Timestamp -&gt; Timestamp
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">8</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-23"></span><span>            </span><span id="local-6989586621679068808"><span class="annot"><span class="annottext">timestamp :: Timestamp
-</span><a href="#local-6989586621679068808"><span class="hs-identifier hs-var hs-var">timestamp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Get Timestamp -&gt; ByteString -&gt; Timestamp
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>            </span><span id="local-6989586621679073062"><span class="annot"><span class="annottext">timestamp :: Timestamp
+</span><a href="#local-6989586621679073062"><span class="hs-identifier hs-var hs-var">timestamp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Get Timestamp -&gt; ByteString -&gt; Timestamp
 forall a. Get a -&gt; ByteString -&gt; a
 </span><span class="hs-identifier hs-var">runGet</span></span><span> </span><span class="annot"><span class="annottext">Get Timestamp
-</span><span class="hs-identifier hs-var">getInt64le</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">getInt64le</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString
 </span><span class="hs-identifier hs-var">B.drop</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
 </span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-24"></span><span>            </span><span id="local-6989586621679068807"><span class="annot"><span class="annottext">checksum :: Checksum
-</span><a href="#local-6989586621679068807"><span class="hs-identifier hs-var hs-var">checksum</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Get Checksum -&gt; ByteString -&gt; Checksum
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>            </span><span id="local-6989586621679073061"><span class="annot"><span class="annottext">checksum :: Checksum
+</span><a href="#local-6989586621679073061"><span class="hs-identifier hs-var hs-var">checksum</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Get Checksum -&gt; ByteString -&gt; Checksum
 forall a. Get a -&gt; ByteString -&gt; a
 </span><span class="hs-identifier hs-var">runGet</span></span><span> </span><span class="annot"><span class="annottext">Get Checksum
-</span><span class="hs-identifier hs-var">getWord32le</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">content</span></a></span><span>
+</span><span class="hs-identifier hs-var">getWord32le</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073060"><span class="hs-identifier hs-var">content</span></a></span><span>
 </span><span id="line-25"></span></pre></body></html>

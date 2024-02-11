@@ -1,74 +1,127 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Caskfile</span><span> </span><span class="hs-keyword">where</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Caskfile</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Caskfile.html#getFileIdFromPath"><span class="hs-identifier">getFileIdFromPath</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier">listCaskFiles</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#removePrevFiles"><span class="hs-identifier">removePrevFiles</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#getLastFileId"><span class="hs-identifier">getLastFileId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier">getCurrentFileId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#prependEntry"><span class="hs-identifier">prependEntry</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#readEntryFromPos"><span class="hs-identifier">readEntryFromPos</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#createCaskLock"><span class="hs-identifier">createCaskLock</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#readEntries"><span class="hs-identifier">readEntries</span></a></span><span class="hs-special">)</span><span>  </span><span class="hs-keyword">where</span><span>
 </span><span id="line-2"></span><span>
-</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
-</span><span id="line-4"></span><span>
-</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FilePath</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">takeBaseName</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">takeExtension</span></span><span class="hs-special">)</span><span>
-</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Directory</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">getCurrentDirectory</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">listDirectory</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">doesFileExist</span></span><span class="hs-special">)</span><span>
-</span><span id="line-7"></span><span>
-</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Serializable.html"><span class="hs-identifier">Serializable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Serializable.html#encode"><span class="hs-identifier">encode</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Serializable.html#decode"><span class="hs-identifier">decode</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#getEntryLength"><span class="hs-identifier">getEntryLength</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-10"></span><span>
-</span><span id="line-11"></span><span class="annot"><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-type">listCaskFiles</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span class="hs-special">]</span><span>
-</span><span id="line-12"></span><span id="listCaskFiles"><span class="annot"><span class="annottext">listCaskFiles :: IO [String]
-</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var hs-var">listCaskFiles</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-13"></span><span>    </span><span id="local-6989586621679068922"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068922"><span class="hs-identifier hs-var">currentdir</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO String
-</span><span class="hs-identifier hs-var">getCurrentDirectory</span></span><span>
-</span><span id="line-14"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068923"><span class="annot"><span class="annottext">workdir :: String
-</span><a href="#local-6989586621679068923"><span class="hs-identifier hs-var hs-var">workdir</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068922"><span class="hs-identifier hs-var">currentdir</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
-forall a. [a] -&gt; [a] -&gt; [a]
-</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;/temp&quot;</span></span><span>
-</span><span id="line-15"></span><span>    </span><span id="local-6989586621679068924"><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679068924"><span class="hs-identifier hs-var">workfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [String]
-</span><span class="hs-identifier hs-var">listDirectory</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068923"><span class="hs-identifier hs-var">workdir</span></a></span><span>
-</span><span id="line-16"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Bool) -&gt; [String] -&gt; [String]
-forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
-</span><span class="hs-identifier hs-var">filter</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679068925"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068925"><span class="hs-identifier hs-var">workfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
-</span><span class="hs-identifier hs-var">takeExtension</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068925"><span class="hs-identifier hs-var">workfile</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
-forall a. Eq a =&gt; a -&gt; a -&gt; Bool
-</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;.cask&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679068924"><span class="hs-identifier hs-var">workfiles</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-17"></span><span>        </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; IO [String]
-forall a. a -&gt; IO a
-forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-18"></span><span>        </span><span id="local-6989586621679068926"><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679068926"><span class="hs-identifier hs-var">files</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; IO [String]
-forall a. a -&gt; IO a
-forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679068926"><span class="hs-identifier hs-var">files</span></a></span><span>
-</span><span id="line-19"></span><span>
-</span><span id="line-20"></span><span class="annot"><a href="Caskfile.html#getLastFileId"><span class="hs-identifier hs-type">getLastFileId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
-</span><span id="line-21"></span><span id="getLastFileId"><span class="annot"><span class="annottext">getLastFileId :: IO Int
-</span><a href="Caskfile.html#getLastFileId"><span class="hs-identifier hs-var hs-var">getLastFileId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-22"></span><span>    </span><span id="local-6989586621679068928"><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679068928"><span class="hs-identifier hs-var">caskfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO [String]
-</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var">listCaskFiles</span></a></span><span>
-</span><span id="line-23"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068931"><span class="annot"><span class="annottext">filenames :: [Int]
-</span><a href="#local-6989586621679068931"><span class="hs-identifier hs-var hs-var">filenames</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Int) -&gt; [String] -&gt; [Int]
-forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
-</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Int
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BL</span></span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Int</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int64</span></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FilePath</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&lt;/&gt;)</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">takeBaseName</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">takeExtension</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">takeDirectory</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Directory</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">listDirectory</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">doesFileExist</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">removeFile</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Serializable.html"><span class="hs-identifier">Serializable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Serializable.html#encode"><span class="hs-identifier">encode</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Serializable.html#decode"><span class="hs-identifier">decode</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#getEntryLength"><span class="hs-identifier">getEntryLength</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="annot"><a href="Caskfile.html#getFileIdFromPath"><span class="hs-identifier hs-type">getFileIdFromPath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-14"></span><span id="getFileIdFromPath"><span class="annot"><span class="annottext">getFileIdFromPath :: String -&gt; Int
+</span><a href="Caskfile.html#getFileIdFromPath"><span class="hs-identifier hs-var hs-var">getFileIdFromPath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Int
 forall a. Read a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">read</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Int) -&gt; (String -&gt; String) -&gt; String -&gt; Int
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String
-</span><span class="hs-identifier hs-var">takeBaseName</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679068928"><span class="hs-identifier hs-var">caskfiles</span></a></span><span>
-</span><span id="line-24"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[Int]
-</span><a href="#local-6989586621679068931"><span class="hs-identifier hs-var">filenames</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-25"></span><span>        </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Int -&gt; IO Int
+</span><span class="hs-identifier hs-var">takeBaseName</span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="annot"><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-type">listCaskFiles</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span class="hs-special">]</span><span>
+</span><span id="line-17"></span><span id="listCaskFiles"><span class="annot"><span class="annottext">listCaskFiles :: String -&gt; IO [String]
+</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var hs-var">listCaskFiles</span></a></span></span><span> </span><span id="local-6989586621679073205"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073205"><span class="hs-identifier hs-var">dirpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-18"></span><span>    </span><span id="local-6989586621679073206"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073206"><span class="hs-identifier hs-var">workfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [String]
+</span><span class="hs-identifier hs-var">listDirectory</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073205"><span class="hs-identifier hs-var">dirpath</span></a></span><span>
+</span><span id="line-19"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Bool) -&gt; [String] -&gt; [String]
+forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">filter</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679073207"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073207"><span class="hs-identifier hs-var">workfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
+</span><span class="hs-identifier hs-var">takeExtension</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073207"><span class="hs-identifier hs-var">workfile</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;.cask&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073206"><span class="hs-identifier hs-var">workfiles</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-20"></span><span>        </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; IO [String]
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-21"></span><span>        </span><span id="local-6989586621679073208"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073208"><span class="hs-identifier hs-var">files</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; IO [String]
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073208"><span class="hs-identifier hs-var">files</span></a></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="annot"><a href="Caskfile.html#removePrevFiles"><span class="hs-identifier hs-type">removePrevFiles</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span id="removePrevFiles"><span class="annot"><span class="annottext">removePrevFiles :: String -&gt; IO ()
+</span><a href="Caskfile.html#removePrevFiles"><span class="hs-identifier hs-var hs-var">removePrevFiles</span></a></span></span><span> </span><span id="local-6989586621679073209"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073209"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073210"><span class="annot"><span class="annottext">fileid :: Int
+</span><a href="#local-6989586621679073210"><span class="hs-identifier hs-var hs-var">fileid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Int
+</span><a href="Caskfile.html#getFileIdFromPath"><span class="hs-identifier hs-var">getFileIdFromPath</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073209"><span class="hs-identifier hs-var">filepath</span></a></span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073211"><span class="annot"><span class="annottext">dir :: String
+</span><a href="#local-6989586621679073211"><span class="hs-identifier hs-var hs-var">dir</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
+</span><span class="hs-identifier hs-var">takeDirectory</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073209"><span class="hs-identifier hs-var">filepath</span></a></span><span>
+</span><span id="line-27"></span><span>    </span><span id="local-6989586621679073212"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073212"><span class="hs-identifier hs-var">caskfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [String]
+</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var">listCaskFiles</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073211"><span class="hs-identifier hs-var">dir</span></a></span><span>
+</span><span id="line-28"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073213"><span class="annot"><span class="annottext">casks :: [Int]
+</span><a href="#local-6989586621679073213"><span class="hs-identifier hs-var hs-var">casks</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Int) -&gt; [String] -&gt; [Int]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Int
+</span><a href="Caskfile.html#getFileIdFromPath"><span class="hs-identifier hs-var">getFileIdFromPath</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073212"><span class="hs-identifier hs-var">caskfiles</span></a></span><span>
+</span><span id="line-29"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073215"><span class="annot"><span class="annottext">caskIdsToRemove :: [Int]
+</span><a href="#local-6989586621679073215"><span class="hs-identifier hs-var hs-var">caskIdsToRemove</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Bool) -&gt; [Int] -&gt; [Int]
+forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">filter</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073210"><span class="hs-identifier hs-var">fileid</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679073213"><span class="hs-identifier hs-var">casks</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073221"><span class="annot"><span class="annottext">caskfilesToRemove :: [String]
+</span><a href="#local-6989586621679073221"><span class="hs-identifier hs-var hs-var">caskfilesToRemove</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; String) -&gt; [Int] -&gt; [String]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679073222"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073222"><span class="hs-identifier hs-var">fileid'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073211"><span class="hs-identifier hs-var">dir</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span class="hs-operator hs-var">&lt;/&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073222"><span class="hs-identifier hs-var">fileid'</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;.cask&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679073215"><span class="hs-identifier hs-var">caskIdsToRemove</span></a></span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">removeFile</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073221"><span class="hs-identifier hs-var">caskfilesToRemove</span></a></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="annot"><a href="Caskfile.html#getLastFileId"><span class="hs-identifier hs-type">getLastFileId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-34"></span><span id="getLastFileId"><span class="annot"><span class="annottext">getLastFileId :: String -&gt; IO Int
+</span><a href="Caskfile.html#getLastFileId"><span class="hs-identifier hs-var hs-var">getLastFileId</span></a></span></span><span> </span><span id="local-6989586621679073225"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073225"><span class="hs-identifier hs-var">dirpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>    </span><span id="local-6989586621679073226"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073226"><span class="hs-identifier hs-var">caskfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [String]
+</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var">listCaskFiles</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073225"><span class="hs-identifier hs-var">dirpath</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073227"><span class="annot"><span class="annottext">fileIds :: [Int]
+</span><a href="#local-6989586621679073227"><span class="hs-identifier hs-var hs-var">fileIds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Int) -&gt; [String] -&gt; [Int]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Int
+</span><a href="Caskfile.html#getFileIdFromPath"><span class="hs-identifier hs-var">getFileIdFromPath</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073226"><span class="hs-identifier hs-var">caskfiles</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679073227"><span class="hs-identifier hs-var">fileIds</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-38"></span><span>        </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Int -&gt; IO Int
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span>
-</span><span id="line-26"></span><span>        </span><span class="annot"><span class="annottext">[Int]
+</span><span id="line-39"></span><span>        </span><span class="annot"><span class="annottext">[Int]
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Int -&gt; IO Int
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
@@ -78,135 +131,175 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a. Ord a =&gt; [a] -&gt; a
 forall (t :: * -&gt; *) a. (Foldable t, Ord a) =&gt; t a -&gt; a
 </span><span class="hs-identifier hs-var">maximum</span></span><span> </span><span class="annot"><span class="annottext">[Int]
-</span><a href="#local-6989586621679068931"><span class="hs-identifier hs-var">filenames</span></a></span><span>
-</span><span id="line-27"></span><span>
-</span><span id="line-28"></span><span class="annot"><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier hs-type">getCurrentFileId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
-</span><span id="line-29"></span><span id="getCurrentFileId"><span class="annot"><span class="annottext">getCurrentFileId :: IO Int
-</span><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier hs-var hs-var">getCurrentFileId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int) -&gt; IO Int -&gt; IO Int
+</span><a href="#local-6989586621679073227"><span class="hs-identifier hs-var">fileIds</span></a></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier hs-type">getCurrentFileId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-42"></span><span id="getCurrentFileId"><span class="annot"><span class="annottext">getCurrentFileId :: String -&gt; IO Int
+</span><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier hs-var hs-var">getCurrentFileId</span></a></span></span><span> </span><span id="local-6989586621679073229"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073229"><span class="hs-identifier hs-var">dirpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int) -&gt; IO Int -&gt; IO Int
 forall a b. (a -&gt; b) -&gt; IO a -&gt; IO b
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">IO Int
-</span><a href="Caskfile.html#getLastFileId"><span class="hs-identifier hs-var">getLastFileId</span></a></span><span>
-</span><span id="line-30"></span><span>
-</span><span id="line-31"></span><span class="annot"><a href="Caskfile.html#prependEntry"><span class="hs-identifier hs-type">prependEntry</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span>
-</span><span id="line-32"></span><span id="prependEntry"><span class="annot"><span class="annottext">prependEntry :: Int -&gt; Entry -&gt; IO Entry
-</span><a href="Caskfile.html#prependEntry"><span class="hs-identifier hs-var hs-var">prependEntry</span></a></span></span><span> </span><span id="local-6989586621679068938"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068938"><span class="hs-identifier hs-var">fileid</span></a></span></span><span> </span><span id="local-6989586621679068939"><span class="annot"><span class="annottext">Entry
-</span><a href="#local-6989586621679068939"><span class="hs-identifier hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-33"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068942"><span class="annot"><span class="annottext">path :: String
-</span><a href="#local-6989586621679068942"><span class="hs-identifier hs-var hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;temp/&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
-forall a. [a] -&gt; [a] -&gt; [a]
-</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
-forall a. Show a =&gt; a -&gt; String
-</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068938"><span class="hs-identifier hs-var">fileid</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
-forall a. [a] -&gt; [a] -&gt; [a]
-</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;.cask&quot;</span></span><span>
-</span><span id="line-34"></span><span>    </span><span id="local-6989586621679068944"><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679068944"><span class="hs-identifier hs-var">exists</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Bool
+</span><span class="hs-operator hs-var">+</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; IO Int
+</span><a href="Caskfile.html#getLastFileId"><span class="hs-identifier hs-var">getLastFileId</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073229"><span class="hs-identifier hs-var">dirpath</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="annot"><a href="Caskfile.html#prependEntry"><span class="hs-identifier hs-type">prependEntry</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span>
+</span><span id="line-45"></span><span id="prependEntry"><span class="annot"><span class="annottext">prependEntry :: String -&gt; Entry -&gt; IO Entry
+</span><a href="Caskfile.html#prependEntry"><span class="hs-identifier hs-var hs-var">prependEntry</span></a></span></span><span> </span><span id="local-6989586621679073231"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073231"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span id="local-6989586621679073232"><span class="annot"><span class="annottext">Entry
+</span><a href="#local-6989586621679073232"><span class="hs-identifier hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679073233"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679073233"><span class="hs-identifier hs-var">exists</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Bool
 </span><span class="hs-identifier hs-var">doesFileExist</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068942"><span class="hs-identifier hs-var">path</span></a></span><span>
-</span><span id="line-35"></span><span>    </span><span class="hs-glyph">!</span><span id="local-6989586621679068945"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068945"><span class="hs-identifier hs-var">contents</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679068944"><span class="hs-identifier hs-var">exists</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
+</span><a href="#local-6989586621679073231"><span class="hs-identifier hs-var">filepath</span></a></span><span>
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679073234"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073234"><span class="hs-identifier hs-var">contents</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679073233"><span class="hs-identifier hs-var">exists</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
 </span><span class="hs-identifier hs-var">B.readFile</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068942"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ByteString
+</span><a href="#local-6989586621679073231"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ByteString
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><span class="hs-identifier hs-var">B.empty</span></span><span>
-</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">ByteString -&gt; IO ()
-forall a. Show a =&gt; a -&gt; IO ()
-</span><span class="hs-identifier hs-var">print</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068945"><span class="hs-identifier hs-var">contents</span></a></span><span>
-</span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; ByteString -&gt; IO ()
-</span><span class="hs-identifier hs-var">B.writeFile</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068942"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+</span><span id="line-48"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; ByteString -&gt; IO ()
+</span><span class="hs-identifier hs-var">BL.writeFile</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073231"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Entry -&gt; ByteString
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Entry -&gt; ByteString
 forall a. Serializable a =&gt; a -&gt; ByteString
 </span><a href="Serializable.html#encode"><span class="hs-identifier hs-var">encode</span></a></span><span> </span><span class="annot"><span class="annottext">Entry
-</span><a href="#local-6989586621679068939"><span class="hs-identifier hs-var">entry</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; ByteString
+</span><a href="#local-6989586621679073232"><span class="hs-identifier hs-var">entry</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; ByteString
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068945"><span class="hs-identifier hs-var">contents</span></a></span><span>
-</span><span id="line-38"></span><span>    </span><span class="annot"><span class="annottext">Entry -&gt; IO Entry
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">BL.fromStrict</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073234"><span class="hs-identifier hs-var">contents</span></a></span><span>
+</span><span id="line-49"></span><span>    </span><span class="annot"><span class="annottext">Entry -&gt; IO Entry
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Entry
-</span><a href="#local-6989586621679068939"><span class="hs-identifier hs-var">entry</span></a></span><span>
-</span><span id="line-39"></span><span>
-</span><span id="line-40"></span><span class="annot"><a href="Caskfile.html#decodeWithOffset"><span class="hs-identifier hs-type">decodeWithOffset</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
-</span><span id="line-41"></span><span id="decodeWithOffset"><span class="annot"><span class="annottext">decodeWithOffset :: ByteString -&gt; Int -&gt; IO [(Int, Entry)]
-</span><a href="Caskfile.html#decodeWithOffset"><span class="hs-identifier hs-var hs-var">decodeWithOffset</span></a></span></span><span> </span><span id="local-6989586621679068950"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068950"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span id="local-6989586621679068951"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068951"><span class="hs-identifier hs-var">offset</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-42"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068956"><span class="annot"><span class="annottext">content' :: ByteString
-</span><a href="#local-6989586621679068956"><span class="hs-identifier hs-var hs-var">content'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; ByteString -&gt; ByteString
-</span><span class="hs-identifier hs-var">B.drop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int64
+</span><a href="#local-6989586621679073232"><span class="hs-identifier hs-var">entry</span></a></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="annot"><a href="Caskfile.html#decodeWithOffset"><span class="hs-identifier hs-type">decodeWithOffset</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BL.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-52"></span><span id="decodeWithOffset"><span class="annot"><span class="annottext">decodeWithOffset :: ByteString -&gt; Int -&gt; IO [(Int, Entry)]
+</span><a href="Caskfile.html#decodeWithOffset"><span class="hs-identifier hs-var hs-var">decodeWithOffset</span></a></span></span><span> </span><span id="local-6989586621679073240"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073240"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span id="local-6989586621679073241"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073241"><span class="hs-identifier hs-var">offset</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-53"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073246"><span class="annot"><span class="annottext">content' :: ByteString
+</span><a href="#local-6989586621679073246"><span class="hs-identifier hs-var hs-var">content'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">BL.drop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int64
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068951"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068950"><span class="hs-identifier hs-var">content</span></a></span><span>
-</span><span id="line-43"></span><span>    </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068956"><span class="hs-identifier hs-var">content'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; Bool
+</span><a href="#local-6989586621679073241"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073240"><span class="hs-identifier hs-var">content</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073246"><span class="hs-identifier hs-var">content'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><span class="hs-identifier hs-var">B.empty</span></span><span>
-</span><span id="line-44"></span><span>    </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">do</span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; IO [(Int, Entry)]
+</span><span class="hs-identifier hs-var">BL.empty</span></span><span>
+</span><span id="line-55"></span><span>    </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">do</span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; IO [(Int, Entry)]
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-45"></span><span>    </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-46"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068959"><span class="annot"><span class="annottext">entry :: Entry
-</span><a href="#local-6989586621679068959"><span class="hs-identifier hs-var hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Entry
+</span><span id="line-56"></span><span>    </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-57"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073250"><span class="annot"><span class="annottext">entry :: Entry
+</span><a href="#local-6989586621679073250"><span class="hs-identifier hs-var hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Entry
 forall a. Serializable a =&gt; ByteString -&gt; a
 </span><a href="Serializable.html#decode"><span class="hs-identifier hs-var">decode</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068956"><span class="hs-identifier hs-var">content'</span></a></span><span>
-</span><span id="line-47"></span><span>        </span><span id="local-6989586621679068960"><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679068960"><span class="hs-identifier hs-var">entries</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Int -&gt; IO [(Int, Entry)]
+</span><a href="#local-6989586621679073246"><span class="hs-identifier hs-var">content'</span></a></span><span>
+</span><span id="line-58"></span><span>        </span><span id="local-6989586621679073251"><span class="annot"><span class="annottext">[(Int, Entry)]
+</span><a href="#local-6989586621679073251"><span class="hs-identifier hs-var">entries</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Int -&gt; IO [(Int, Entry)]
 </span><a href="Caskfile.html#decodeWithOffset"><span class="hs-identifier hs-var">decodeWithOffset</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068950"><span class="hs-identifier hs-var">content</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; IO [(Int, Entry)]) -&gt; Int -&gt; IO [(Int, Entry)]
+</span><a href="#local-6989586621679073240"><span class="hs-identifier hs-var">content</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; IO [(Int, Entry)]) -&gt; Int -&gt; IO [(Int, Entry)]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068951"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073241"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Entry -&gt; Int
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Entry -&gt; Int
 </span><a href="Entry.html#getEntryLength"><span class="hs-identifier hs-var">getEntryLength</span></a></span><span> </span><span class="annot"><span class="annottext">Entry
-</span><a href="#local-6989586621679068959"><span class="hs-identifier hs-var">entry</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-48"></span><span>        </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; IO [(Int, Entry)]
+</span><a href="#local-6989586621679073250"><span class="hs-identifier hs-var">entry</span></a></span><span>
+</span><span id="line-59"></span><span>        </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; IO [(Int, Entry)]
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">([(Int, Entry)] -&gt; IO [(Int, Entry)])
 -&gt; [(Int, Entry)] -&gt; IO [(Int, Entry)]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068951"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Entry
-</span><a href="#local-6989586621679068959"><span class="hs-identifier hs-var">entry</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Int, Entry) -&gt; [(Int, Entry)] -&gt; [(Int, Entry)]
+</span><a href="#local-6989586621679073241"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Entry
+</span><a href="#local-6989586621679073250"><span class="hs-identifier hs-var">entry</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Int, Entry) -&gt; [(Int, Entry)] -&gt; [(Int, Entry)]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679068960"><span class="hs-identifier hs-var">entries</span></a></span><span>
-</span><span id="line-49"></span><span>
-</span><span id="line-50"></span><span class="annot"><a href="Caskfile.html#readEntries"><span class="hs-identifier hs-type">readEntries</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
-</span><span id="line-51"></span><span id="readEntries"><span class="annot"><span class="annottext">readEntries :: String -&gt; IO [(Int, Entry)]
-</span><a href="Caskfile.html#readEntries"><span class="hs-identifier hs-var hs-var">readEntries</span></a></span></span><span> </span><span id="local-6989586621679068962"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068962"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-52"></span><span>    </span><span id="local-6989586621679068963"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068963"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
-</span><span class="hs-identifier hs-var">B.readFile</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO ByteString) -&gt; String -&gt; IO ByteString
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;temp/&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
-forall a. [a] -&gt; [a] -&gt; [a]
-</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679068962"><span class="hs-identifier hs-var">path</span></a></span><span>
-</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">ByteString -&gt; Int -&gt; IO [(Int, Entry)]
+</span><a href="#local-6989586621679073251"><span class="hs-identifier hs-var">entries</span></a></span><span>
+</span><span id="line-60"></span><span>
+</span><span id="line-61"></span><span class="annot"><a href="Caskfile.html#readEntries"><span class="hs-identifier hs-type">readEntries</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-62"></span><span id="readEntries"><span class="annot"><span class="annottext">readEntries :: String -&gt; IO [(Int, Entry)]
+</span><a href="Caskfile.html#readEntries"><span class="hs-identifier hs-var hs-var">readEntries</span></a></span></span><span> </span><span id="local-6989586621679073252"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073252"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-63"></span><span>    </span><span id="local-6989586621679073253"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073253"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
+</span><span class="hs-identifier hs-var">BL.readFile</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073252"><span class="hs-identifier hs-var">filepath</span></a></span><span>
+</span><span id="line-64"></span><span>    </span><span class="annot"><span class="annottext">ByteString -&gt; Int -&gt; IO [(Int, Entry)]
 </span><a href="Caskfile.html#decodeWithOffset"><span class="hs-identifier hs-var">decodeWithOffset</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679068963"><span class="hs-identifier hs-var">content</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073253"><span class="hs-identifier hs-var">content</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span>
-</span><span id="line-54"></span></pre></body></html>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="annot"><a href="Caskfile.html#readEntryFromPos"><span class="hs-identifier hs-type">readEntryFromPos</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span>
+</span><span id="line-67"></span><span id="readEntryFromPos"><span class="annot"><span class="annottext">readEntryFromPos :: String -&gt; Int64 -&gt; Int64 -&gt; Int64 -&gt; IO Entry
+</span><a href="Caskfile.html#readEntryFromPos"><span class="hs-identifier hs-var hs-var">readEntryFromPos</span></a></span></span><span> </span><span id="local-6989586621679073255"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073255"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span id="local-6989586621679073256"><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073256"><span class="hs-identifier hs-var">ksize</span></a></span></span><span> </span><span id="local-6989586621679073257"><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073257"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679073258"><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073258"><span class="hs-identifier hs-var">offset</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-68"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073269"><span class="annot"><span class="annottext">offset' :: Int64
+</span><a href="#local-6989586621679073269"><span class="hs-identifier hs-var hs-var">offset'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073258"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Int64 -&gt; Int64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073257"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Int64 -&gt; Int64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073256"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Int64 -&gt; Int64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Int64 -&gt; Int64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Int64 -&gt; Int64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Int64 -&gt; Int64
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><span class="hs-number">4</span></span><span>
+</span><span id="line-69"></span><span>    </span><span id="local-6989586621679073270"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073270"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
+</span><span class="hs-identifier hs-var">BL.readFile</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073255"><span class="hs-identifier hs-var">filepath</span></a></span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">Entry -&gt; IO Entry
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Entry -&gt; IO Entry) -&gt; Entry -&gt; IO Entry
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Entry
+forall a. Serializable a =&gt; ByteString -&gt; a
+</span><a href="Serializable.html#decode"><span class="hs-identifier hs-var">decode</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Entry) -&gt; ByteString -&gt; Entry
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">BL.drop</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679073269"><span class="hs-identifier hs-var">offset'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679073270"><span class="hs-identifier hs-var">content</span></a></span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span class="annot"><a href="Caskfile.html#createCaskLock"><span class="hs-identifier hs-type">createCaskLock</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span id="createCaskLock"><span class="annot"><span class="annottext">createCaskLock :: String -&gt; IO ()
+</span><a href="Caskfile.html#createCaskLock"><span class="hs-identifier hs-var hs-var">createCaskLock</span></a></span></span><span> </span><span id="local-6989586621679073271"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073271"><span class="hs-identifier hs-var">dirpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; ByteString -&gt; IO ()
+</span><span class="hs-identifier hs-var">BL.writeFile</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073271"><span class="hs-identifier hs-var">dirpath</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><span class="hs-operator hs-var">&lt;/&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;cask.lock&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-75"></span></pre></body></html>

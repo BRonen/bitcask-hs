@@ -16,14 +16,15 @@ main = do
                     print entry'
                 Left err -> print err -}
             BC.get handle "hello" >>= print
-            BC.put handle "hello" "999999" >>= print
+            BC.put handle "hello" "hello world" >>= print
             BC.listKeys handle >>= print
-            handle'' <- BC.merge handle
+            BC.close handle
+            {- handle'' <- BC.merge handle
             case handle'' of
                 Left err -> print err
                 Right handle''' -> do
                     BC.listKeys handle''' >>= print
                     BC.put handle''' "joao castro" "grande"
                     BC.put handle''' "joao castro1" "grande2"
-                    BC.close handle'''
+                    BC.close handle''' -}
             pure ()

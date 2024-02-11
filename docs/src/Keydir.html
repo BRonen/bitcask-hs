@@ -1,12 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Keydir</span><span> </span><span class="hs-keyword">where</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Keydir</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier">mapEntriesToKeydir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#getValueFromKeydir"><span class="hs-identifier">getValueFromKeydir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#buildKeyDir"><span class="hs-identifier">buildKeyDir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier">listKeysFromKeydir</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-2"></span><span>
 </span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Map</span></span><span>
-</span><span id="line-4"></span><span>
-</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Caskfile.html"><span class="hs-identifier">Caskfile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier">listCaskFiles</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#readEntries"><span class="hs-identifier">readEntries</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Checksum"><span class="hs-identifier">Checksum</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier">FieldSize</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier">Timestamp</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier">Key</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FilePath</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&lt;/&gt;)</span></span><span class="hs-special">)</span><span>
 </span><span id="line-7"></span><span>
-</span><span id="line-8"></span><span class="hs-keyword">data</span><span> </span><span id="KeydirEntry"><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-var">KeydirEntry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="KeydirEntry"><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-var">KeydirEntry</span></a></span></span><span> </span><span class="annot"><a href="Entry.html#Checksum"><span class="hs-identifier hs-type">Checksum</span></a></span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-type">FieldSize</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier hs-type">Timestamp</span></a></span><span>
-</span><span id="line-9"></span><span>    </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679069023"><span id="local-6989586621679069033"><span id="local-6989586621679069037"><span class="annot"><span class="annottext">Int -&gt; KeydirEntry -&gt; ShowS
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Caskfile.html"><span class="hs-identifier">Caskfile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier">listCaskFiles</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#readEntries"><span class="hs-identifier">readEntries</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#readEntryFromPos"><span class="hs-identifier">readEntryFromPos</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier">FieldSize</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier">Timestamp</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier">Key</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier">Value</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#matchChecksum"><span class="hs-identifier">matchChecksum</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">data</span><span> </span><span id="KeydirEntry"><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-var">KeydirEntry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="KeydirEntry"><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-var">KeydirEntry</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="annot"><a href="Entry.html#FieldSize"><span class="hs-identifier hs-type">FieldSize</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="Entry.html#Timestamp"><span class="hs-identifier hs-type">Timestamp</span></a></span><span>
+</span><span id="line-12"></span><span>    </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073347"><span id="local-6989586621679073359"><span id="local-6989586621679073363"><span class="annot"><span class="annottext">Int -&gt; KeydirEntry -&gt; ShowS
 [KeydirEntry] -&gt; ShowS
 KeydirEntry -&gt; String
 (Int -&gt; KeydirEntry -&gt; ShowS)
@@ -21,7 +24,7 @@ $cshow :: KeydirEntry -&gt; String
 show :: KeydirEntry -&gt; String
 $cshowList :: [KeydirEntry] -&gt; ShowS
 showList :: [KeydirEntry] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069041"><span id="local-6989586621679069050"><span class="annot"><span class="annottext">KeydirEntry -&gt; KeydirEntry -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073368"><span id="local-6989586621679073378"><span class="annot"><span class="annottext">KeydirEntry -&gt; KeydirEntry -&gt; Bool
 (KeydirEntry -&gt; KeydirEntry -&gt; Bool)
 -&gt; (KeydirEntry -&gt; KeydirEntry -&gt; Bool) -&gt; Eq KeydirEntry
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -30,81 +33,193 @@ $c== :: KeydirEntry -&gt; KeydirEntry -&gt; Bool
 $c/= :: KeydirEntry -&gt; KeydirEntry -&gt; Bool
 /= :: KeydirEntry -&gt; KeydirEntry -&gt; Bool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
-</span><span id="line-10"></span><span>
-</span><span id="line-11"></span><span class="hs-keyword">type</span><span> </span><span id="Keydir"><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-var">Keydir</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span>
-</span><span id="line-12"></span><span>
-</span><span id="line-13"></span><span class="annot"><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-type">mapEntriesToKeydir</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-type">Keydir</span></a></span><span>
-</span><span id="line-14"></span><span id="mapEntriesToKeydir"><span class="annot"><span class="annottext">mapEntriesToKeydir :: [(Int, Entry)] -&gt; Keydir
-</span><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var hs-var">mapEntriesToKeydir</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Keydir
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">type</span><span> </span><span id="Keydir"><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-var">Keydir</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="annot"><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-type">mapEntriesToKeydir</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-type">Keydir</span></a></span><span>
+</span><span id="line-17"></span><span id="mapEntriesToKeydir"><span class="annot"><span class="annottext">mapEntriesToKeydir :: String -&gt; [(Int, Entry)] -&gt; Keydir
+</span><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var hs-var">mapEntriesToKeydir</span></a></span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Keydir
 forall k a. Map k a
 </span><span class="hs-identifier hs-var">Map.empty</span></span><span>
-</span><span id="line-15"></span><span class="annot"><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var">mapEntriesToKeydir</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span id="local-6989586621679069056"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679069056"><span class="hs-identifier hs-var">offset</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679069058"><span class="annot"><span class="annottext">FieldSize
-</span><a href="#local-6989586621679069058"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span class="annot"><span class="annottext">FieldSize
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679069059"><span class="annot"><span class="annottext">FieldSize
-</span><a href="#local-6989586621679069059"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679069060"><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679069060"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="annot"><span class="annottext">Key
-</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679069061"><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679069061"><span class="hs-identifier hs-var">entries</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-16"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679069064"><span class="annot"><span class="annottext">entry :: KeydirEntry
-</span><a href="#local-6989586621679069064"><span class="hs-identifier hs-var hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Checksum -&gt; FieldSize -&gt; Int -&gt; FieldSize -&gt; KeydirEntry
-</span><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-var">KeydirEntry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
-</span><span class="hs-number">18</span></span><span> </span><span class="annot"><span class="annottext">FieldSize
-</span><a href="#local-6989586621679069059"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679069056"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSize
-</span><a href="#local-6989586621679069058"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="hs-keyword">in</span><span>
-</span><span id="line-17"></span><span>    </span><span class="annot"><span class="annottext">Key -&gt; KeydirEntry -&gt; Keydir -&gt; Keydir
+</span><span id="line-18"></span><span class="annot"><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var">mapEntriesToKeydir</span></a></span><span> </span><span id="local-6989586621679073384"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073384"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span id="local-6989586621679073385"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073385"><span class="hs-identifier hs-var">offset</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073387"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073387"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span id="local-6989586621679073388"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073388"><span class="hs-identifier hs-var">ksize</span></a></span></span><span> </span><span id="local-6989586621679073389"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073389"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679073390"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679073390"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679073391"><span class="annot"><span class="annottext">[(Int, Entry)]
+</span><a href="#local-6989586621679073391"><span class="hs-identifier hs-var">entries</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-19"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073396"><span class="annot"><span class="annottext">ksize' :: Int
+</span><a href="#local-6989586621679073396"><span class="hs-identifier hs-var hs-var">ksize'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Int
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073388"><span class="hs-identifier hs-var">ksize</span></a></span><span> </span><span class="hs-keyword">in</span><span>
+</span><span id="line-20"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073406"><span class="annot"><span class="annottext">entry :: KeydirEntry
+</span><a href="#local-6989586621679073406"><span class="hs-identifier hs-var hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Timestamp -&gt; Int -&gt; Timestamp -&gt; KeydirEntry
+</span><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-var">KeydirEntry</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073384"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073389"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073396"><span class="hs-identifier hs-var">ksize'</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">4</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073385"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073387"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="hs-keyword">in</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="annottext">Key -&gt; KeydirEntry -&gt; Keydir -&gt; Keydir
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">Map.insert</span></span><span> </span><span class="annot"><span class="annottext">Key
-</span><a href="#local-6989586621679069060"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">KeydirEntry
-</span><a href="#local-6989586621679069064"><span class="hs-identifier hs-var">entry</span></a></span><span> </span><span class="annot"><span class="annottext">(Keydir -&gt; Keydir) -&gt; Keydir -&gt; Keydir
+</span><a href="#local-6989586621679073390"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">KeydirEntry
+</span><a href="#local-6989586621679073406"><span class="hs-identifier hs-var">entry</span></a></span><span> </span><span class="annot"><span class="annottext">(Keydir -&gt; Keydir) -&gt; Keydir -&gt; Keydir
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; Keydir
-</span><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var">mapEntriesToKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679069061"><span class="hs-identifier hs-var">entries</span></a></span><span>
-</span><span id="line-18"></span><span>
-</span><span id="line-19"></span><span class="annot"><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-type">buildKeyDir</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-type">Keydir</span></a></span><span>
-</span><span id="line-20"></span><span id="buildKeyDir"><span class="annot"><span class="annottext">buildKeyDir :: IO Keydir
-</span><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-var hs-var">buildKeyDir</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-21"></span><span>    </span><span id="local-6989586621679069067"><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679069067"><span class="hs-identifier hs-var">caskfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO [String]
-</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var">listCaskFiles</span></a></span><span>
-</span><span id="line-22"></span><span>    </span><span id="local-6989586621679069068"><span class="annot"><span class="annottext">[Keydir]
-</span><a href="#local-6989586621679069068"><span class="hs-identifier hs-var">keydirs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO Keydir) -&gt; [String] -&gt; IO [Keydir]
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; [(Int, Entry)] -&gt; Keydir
+</span><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var">mapEntriesToKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073384"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)]
+</span><a href="#local-6989586621679073391"><span class="hs-identifier hs-var">entries</span></a></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="annot"><a href="Keydir.html#getValueFromKeydir"><span class="hs-identifier hs-type">getValueFromKeydir</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-type">Keydir</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span id="getValueFromKeydir"><span class="annot"><span class="annottext">getValueFromKeydir :: Keydir -&gt; Key -&gt; IO (Maybe Key)
+</span><a href="Keydir.html#getValueFromKeydir"><span class="hs-identifier hs-var hs-var">getValueFromKeydir</span></a></span></span><span> </span><span id="local-6989586621679073409"><span class="annot"><span class="annottext">Keydir
+</span><a href="#local-6989586621679073409"><span class="hs-identifier hs-var">keydir</span></a></span></span><span> </span><span id="local-6989586621679073410"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679073410"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073412"><span class="annot"><span class="annottext">keydir' :: Maybe KeydirEntry
+</span><a href="#local-6989586621679073412"><span class="hs-identifier hs-var hs-var">keydir'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Key -&gt; Keydir -&gt; Maybe KeydirEntry
+forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679073410"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Keydir
+</span><a href="#local-6989586621679073409"><span class="hs-identifier hs-var">keydir</span></a></span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe KeydirEntry
+</span><a href="#local-6989586621679073412"><span class="hs-identifier hs-var">keydir'</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-27"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span> </span><span id="local-6989586621679073414"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073414"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span id="local-6989586621679073415"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073415"><span class="hs-identifier hs-var">vsize</span></a></span></span><span> </span><span id="local-6989586621679073416"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073416"><span class="hs-identifier hs-var">offset</span></a></span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-28"></span><span>            </span><span id="local-6989586621679073417"><span class="annot"><span class="annottext">entry :: Entry
+</span><a href="#local-6989586621679073417"><span class="hs-identifier hs-var">entry</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span> </span><span class="annot"><span class="annottext">Checksum
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073418"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679073418"><span class="hs-identifier hs-var">value</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Timestamp -&gt; Timestamp -&gt; Timestamp -&gt; IO Entry
+</span><a href="Caskfile.html#readEntryFromPos"><span class="hs-identifier hs-var">readEntryFromPos</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073414"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Key -&gt; Timestamp
+</span><span class="hs-identifier hs-var">B.length</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679073410"><span class="hs-identifier hs-var">key</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073415"><span class="hs-identifier hs-var">vsize</span></a></span><span> </span><span class="annot"><span class="annottext">(Timestamp -&gt; IO Entry) -&gt; Timestamp -&gt; IO Entry
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Timestamp
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073416"><span class="hs-identifier hs-var">offset</span></a></span><span>
+</span><span id="line-29"></span><span>            </span><span class="annot"><span class="annottext">Maybe Key -&gt; IO (Maybe Key)
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe Key -&gt; IO (Maybe Key)) -&gt; Maybe Key -&gt; IO (Maybe Key)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Entry -&gt; Bool
+</span><a href="Entry.html#matchChecksum"><span class="hs-identifier hs-var">matchChecksum</span></a></span><span> </span><span class="annot"><span class="annottext">Entry
+</span><a href="#local-6989586621679073417"><span class="hs-identifier hs-var">entry</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Key -&gt; Maybe Key
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621679073418"><span class="hs-identifier hs-var">value</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Maybe Key
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-30"></span><span>        </span><span class="annot"><span class="annottext">Maybe KeydirEntry
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe Key -&gt; IO (Maybe Key)
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe Key
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Keydir.html#compareByTimestamp"><span class="hs-identifier hs-type">compareByTimestamp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span>
+</span><span id="line-33"></span><span id="compareByTimestamp"><span class="annot"><span class="annottext">compareByTimestamp :: KeydirEntry -&gt; KeydirEntry -&gt; KeydirEntry
+</span><a href="Keydir.html#compareByTimestamp"><span class="hs-identifier hs-var hs-var">compareByTimestamp</span></a></span></span><span> </span><span id="local-6989586621679073421"><span class="annot"><span class="annottext">left :: KeydirEntry
+</span><a href="#local-6989586621679073421"><span class="hs-identifier hs-var">left</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073422"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073422"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073423"><span class="annot"><span class="annottext">right :: KeydirEntry
+</span><a href="#local-6989586621679073423"><span class="hs-identifier hs-var">right</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Keydir.html#KeydirEntry"><span class="hs-identifier hs-type">KeydirEntry</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073424"><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073424"><span class="hs-identifier hs-var">timestamp'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>    </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073422"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; Timestamp -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Timestamp
+</span><a href="#local-6989586621679073424"><span class="hs-identifier hs-var">timestamp'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">KeydirEntry
+</span><a href="#local-6989586621679073421"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">KeydirEntry
+</span><a href="#local-6989586621679073423"><span class="hs-identifier hs-var">right</span></a></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="annot"><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-type">buildKeyDir</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-type">Keydir</span></a></span><span>
+</span><span id="line-37"></span><span id="buildKeyDir"><span class="annot"><span class="annottext">buildKeyDir :: String -&gt; IO Keydir
+</span><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-var hs-var">buildKeyDir</span></a></span></span><span> </span><span id="local-6989586621679073426"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073426"><span class="hs-identifier hs-var">dirpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-38"></span><span>    </span><span id="local-6989586621679073427"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073427"><span class="hs-identifier hs-var">caskfiles</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [String]
+</span><a href="Caskfile.html#listCaskFiles"><span class="hs-identifier hs-var">listCaskFiles</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073426"><span class="hs-identifier hs-var">dirpath</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679073428"><span class="annot"><span class="annottext">[Keydir]
+</span><a href="#local-6989586621679073428"><span class="hs-identifier hs-var">keydirs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO Keydir) -&gt; [String] -&gt; IO [Keydir]
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Traversable t, Monad m) =&gt;
 (a -&gt; m b) -&gt; t a -&gt; m (t b)
 forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; [a] -&gt; m [b]
-</span><span class="hs-identifier hs-var">mapM</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679069070"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679069070"><span class="hs-identifier hs-var">caskfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-23"></span><span>        </span><span id="local-6989586621679069071"><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679069071"><span class="hs-identifier hs-var">entries</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [(Int, Entry)]
+</span><span class="hs-identifier hs-var">mapM</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679073430"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073430"><span class="hs-identifier hs-var">caskfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-40"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073431"><span class="annot"><span class="annottext">caskpath :: String
+</span><a href="#local-6989586621679073431"><span class="hs-identifier hs-var hs-var">caskpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073426"><span class="hs-identifier hs-var">dirpath</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+</span><span class="hs-operator hs-var">&lt;/&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073430"><span class="hs-identifier hs-var">caskfile</span></a></span><span>
+</span><span id="line-41"></span><span>        </span><span id="local-6989586621679073432"><span class="annot"><span class="annottext">[(Int, Entry)]
+</span><a href="#local-6989586621679073432"><span class="hs-identifier hs-var">entries</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO [(Int, Entry)]
 </span><a href="Caskfile.html#readEntries"><span class="hs-identifier hs-var">readEntries</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679069070"><span class="hs-identifier hs-var">caskfile</span></a></span><span>
-</span><span id="line-24"></span><span>        </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; IO ()
-forall a. Show a =&gt; a -&gt; IO ()
-</span><span class="hs-identifier hs-var">print</span></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679069071"><span class="hs-identifier hs-var">entries</span></a></span><span>
-</span><span id="line-25"></span><span>        </span><span class="annot"><span class="annottext">Keydir -&gt; IO Keydir
+</span><a href="#local-6989586621679073431"><span class="hs-identifier hs-var">caskpath</span></a></span><span>
+</span><span id="line-42"></span><span>        </span><span class="annot"><span class="annottext">Keydir -&gt; IO Keydir
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Keydir -&gt; IO Keydir) -&gt; Keydir -&gt; IO Keydir
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)] -&gt; Keydir
-</span><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var">mapEntriesToKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)]
-</span><a href="#local-6989586621679069071"><span class="hs-identifier hs-var">entries</span></a></span><span>
-</span><span id="line-26"></span><span>        </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
-</span><a href="#local-6989586621679069067"><span class="hs-identifier hs-var">caskfiles</span></a></span><span>
-</span><span id="line-27"></span><span>    </span><span class="annot"><span class="annottext">Keydir -&gt; IO Keydir
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; [(Int, Entry)] -&gt; Keydir
+</span><a href="Keydir.html#mapEntriesToKeydir"><span class="hs-identifier hs-var">mapEntriesToKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679073431"><span class="hs-identifier hs-var">caskpath</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, Entry)]
+</span><a href="#local-6989586621679073432"><span class="hs-identifier hs-var">entries</span></a></span><span>
+</span><span id="line-43"></span><span>        </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679073427"><span class="hs-identifier hs-var">caskfiles</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">Keydir -&gt; IO Keydir
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Keydir -&gt; IO Keydir) -&gt; Keydir -&gt; IO Keydir
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Keydir] -&gt; Keydir
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(KeydirEntry -&gt; KeydirEntry -&gt; KeydirEntry) -&gt; [Keydir] -&gt; Keydir
 forall (f :: * -&gt; *) k a.
 (Foldable f, Ord k) =&gt;
-f (Map k a) -&gt; Map k a
-</span><span class="hs-identifier hs-var">Map.unions</span></span><span> </span><span class="annot"><span class="annottext">[Keydir]
-</span><a href="#local-6989586621679069068"><span class="hs-identifier hs-var">keydirs</span></a></span><span>
-</span><span id="line-28"></span></pre></body></html>
+(a -&gt; a -&gt; a) -&gt; f (Map k a) -&gt; Map k a
+</span><span class="hs-identifier hs-var">Map.unionsWith</span></span><span> </span><span class="annot"><span class="annottext">KeydirEntry -&gt; KeydirEntry -&gt; KeydirEntry
+</span><a href="Keydir.html#compareByTimestamp"><span class="hs-identifier hs-var">compareByTimestamp</span></a></span><span> </span><span class="annot"><span class="annottext">[Keydir]
+</span><a href="#local-6989586621679073428"><span class="hs-identifier hs-var">keydirs</span></a></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="annot"><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier hs-type">listKeysFromKeydir</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Keydir.html#Keydir"><span class="hs-identifier hs-type">Keydir</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span id="listKeysFromKeydir"><span class="annot"><span class="annottext">listKeysFromKeydir :: Keydir -&gt; [Key]
+</span><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier hs-var hs-var">listKeysFromKeydir</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Keydir -&gt; [Key]
+forall k a. Map k a -&gt; [k]
+</span><span class="hs-identifier hs-var">Map.keys</span></span><span>
+</span><span id="line-48"></span></pre></body></html>
