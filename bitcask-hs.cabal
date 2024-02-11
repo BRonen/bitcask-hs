@@ -105,6 +105,9 @@ test-suite bitcask-hs-test
     , filelock
     , filepath
     , interpolate
+    , tasty
+    , tasty-golden
+    , tasty-hunit
     , time
     , utf8-string
   default-language: Haskell2010

@@ -70,3 +70,9 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - bitcask-hs
+    - tasty
+    - tasty-hunit
+    - tasty-golden
+    - filepath
+    - bytestring
+    - utf8-string
