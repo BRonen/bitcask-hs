@@ -1,4 +1,4 @@
-module Bitcask where
+module Bitcask (open, put, get, delete, listKeys, merge, close) where
 
 import qualified Data.ByteString.Lazy as B
 
@@ -65,17 +65,12 @@ merge (Handle filepath' True filelock) = do
     currentFileid <- getCurrentFileId dirpath
     let filepath = dirpath </> show currentFileid ++ ".cask"
     let handle' = Handle filepath True filelock
-    print "wasd"
-    print handle'
     keydir <- buildKeyDir (dropFileName filepath)
     let keys = listKeysFromKeydir keydir
-    sequence $ map (\key -> do
+    mapM_ (\key -> do
         value <- get handle' key
-        print "wasd"
-        print key
         case value of
-            Just value' -> do
-                put handle' key value'
+            Just value' -> put handle' key value'
             Nothing -> pure $ Left "wasd"
         ) keys
     removePrevFiles filepath
