@@ -1,11 +1,11 @@
-module Keydir where
+module Keydir (mapEntriesToKeydir, getValueFromKeydir, buildKeyDir, listKeysFromKeydir) where
 
 import qualified Data.Map as Map
 
 import System.FilePath ((</>))
 
-import Caskfile (listCaskFiles, readEntries, getFileIdFromPath, readValueFromPos)
-import Entry (Entry (..), Checksum, FieldSize, Timestamp, Key, Value)
+import Caskfile (listCaskFiles, readEntries, readValueFromPos)
+import Entry (Entry (..), FieldSize, Timestamp, Key, Value)
 
 data KeydirEntry = KeydirEntry FilePath FieldSize Int Timestamp
     deriving (Show, Eq)
