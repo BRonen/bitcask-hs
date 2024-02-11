@@ -1,11 +1,12 @@
 module Keydir (mapEntriesToKeydir, getValueFromKeydir, buildKeyDir, listKeysFromKeydir) where
 
 import qualified Data.Map as Map
+import qualified Data.ByteString.Lazy as B
 
 import System.FilePath ((</>))
 
-import Caskfile (listCaskFiles, readEntries, readValueFromPos)
-import Entry (Entry (..), FieldSize, Timestamp, Key, Value)
+import Caskfile (listCaskFiles, readEntries, readEntryFromPos)
+import Entry (Entry (..), FieldSize, Timestamp, Key, Value, matchChecksum)
 
 data KeydirEntry = KeydirEntry FilePath FieldSize Int Timestamp
     deriving (Show, Eq)
@@ -24,8 +25,8 @@ getValueFromKeydir keydir key = do
     let keydir' = Map.lookup key keydir
     case keydir' of
         Just (KeydirEntry filepath vsize offset _) -> do
-            value <- readValueFromPos filepath vsize $ fromIntegral offset
-            pure $ Just value
+            entry@(Entry _ _ _ _ _ value) <- readEntryFromPos filepath (B.length key) vsize $ fromIntegral offset
+            pure $ if matchChecksum entry then Just value else Nothing
         Nothing -> pure Nothing
 
 compareByTimestamp :: KeydirEntry -> KeydirEntry -> KeydirEntry

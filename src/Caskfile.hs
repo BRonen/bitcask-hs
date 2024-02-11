@@ -1,15 +1,14 @@
-module Caskfile (getFileIdFromPath, listCaskFiles, removePrevFiles, getLastFileId, getCurrentFileId, prependEntry, readValueFromPos, createCaskLock, readEntries)  where
+module Caskfile (getFileIdFromPath, listCaskFiles, removePrevFiles, getLastFileId, getCurrentFileId, prependEntry, readEntryFromPos, createCaskLock, readEntries)  where
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 
 import Data.Int (Int64)
-import Data.Binary.Get (getLazyByteString, runGet)
 import System.FilePath ((</>), takeBaseName, takeExtension, takeDirectory)
 import System.Directory (listDirectory, doesFileExist, removeFile)
 
 import Serializable (encode, decode)
-import Entry (Entry (..), Value, getEntryLength)
+import Entry (Entry (..), getEntryLength)
 
 getFileIdFromPath :: FilePath -> Int
 getFileIdFromPath = read . takeBaseName
@@ -64,10 +63,11 @@ readEntries filepath = do
     content <- BL.readFile filepath
     decodeWithOffset content 0
 
-readValueFromPos :: FilePath -> Int64 -> Int64 -> IO Value
-readValueFromPos filepath vsize offset = do
+readEntryFromPos :: FilePath -> Int64 -> Int64 -> Int64 -> IO Entry
+readEntryFromPos filepath ksize vsize offset = do
+    let offset' = offset - vsize - ksize - 8 - 8 - 8 - 4
     content <- BL.readFile filepath
-    pure $ runGet (getLazyByteString vsize) (BL.drop offset content)
+    pure $ decode $ BL.drop offset' content
 
 createCaskLock :: FilePath -> IO ()
 createCaskLock dirpath = do
