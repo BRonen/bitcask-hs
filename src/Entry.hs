@@ -1,4 +1,4 @@
-module Entry where
+module Entry (nanosSinceEpoch, buildEntry, getEntryLength) where
 
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.UTF8 as BU
@@ -33,22 +33,16 @@ instance Show Entry where
 nanosSinceEpoch :: IO Timestamp
 nanosSinceEpoch = do
     t <- getPOSIXTime
-    pure $ floor $ 1e9 * (nominalDiffTimeToSeconds t)
+    pure $ floor $ 1e9 * nominalDiffTimeToSeconds t
 
 buildEntry :: Timestamp -> Key -> Value -> Entry
 buildEntry timestamp key value = Entry checksum timestamp keyl valuel key value
     where
         checksum = crc32 $ BU.fromString $ show timestamp ++ show keyl ++ show valuel ++ key' ++ value'
-        keyl = B.length key :: FieldSize
-        valuel = B.length value :: FieldSize
+        keyl = B.length key
+        valuel = B.length value
         key' = BU.toString key
         value' = BU.toString value
 
 getEntryLength :: Entry -> Int
 getEntryLength (Entry _ _ ksize vsize _ _) = fromIntegral $ 4 + 8 + 8 + 8 + ksize + vsize
-
-{- 
-checkSum :: Checksum -> String -> String -> Bool
-checkSum checksum key value = checksum == checksum'
-    where
-        checksum' = crc32 $ BU.fromString $ key ++ value -}
