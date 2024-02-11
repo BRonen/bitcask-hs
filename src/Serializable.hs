@@ -1,4 +1,4 @@
-module Serializable (encode, decode) where
+module Serializable (Serializable, encode, decode) where
 
 import qualified Data.ByteString.Lazy as B
 
