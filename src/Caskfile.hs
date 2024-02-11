@@ -1,11 +1,12 @@
 module Caskfile where
 
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 
 import Data.Int (Int64)
 import Data.Binary.Get (getLazyByteString, runGet)
-import System.FilePath (takeBaseName, takeExtension)
-import System.Directory (getCurrentDirectory, listDirectory, doesFileExist)
+import System.FilePath ((</>), takeBaseName, takeExtension, takeDirectory)
+import System.Directory (listDirectory, doesFileExist, removeFile)
 
 import Serializable (encode, decode)
 import Entry (Entry (..), Value, getEntryLength)
@@ -19,6 +20,16 @@ listCaskFiles dirpath = do
     case filter (\workfile -> takeExtension workfile == ".cask") workfiles of
         [] -> pure []
         files -> pure files
+
+removePrevFiles :: FilePath -> IO ()
+removePrevFiles filepath = do
+    let fileid = getFileIdFromPath filepath
+    let dir = takeDirectory filepath
+    caskfiles <- listCaskFiles dir
+    let casks = map getFileIdFromPath caskfiles
+    let caskIdsToRemove = filter (< fileid) casks
+    let caskfilesToRemove = map (\fileid' -> dir </> show fileid' ++ ".cask") caskIdsToRemove
+    mapM_ removeFile caskfilesToRemove
 
 getLastFileId :: FilePath -> IO Int
 getLastFileId dirpath = do
@@ -35,14 +46,13 @@ prependEntry :: FilePath -> Entry -> IO Entry
 prependEntry filepath entry = do
     exists <- doesFileExist filepath
     !contents <- if exists then B.readFile filepath else pure B.empty
-    print contents
-    B.writeFile filepath $ (encode entry) <> contents
+    BL.writeFile filepath $ encode entry <> BL.fromStrict contents
     pure entry
 
-decodeWithOffset :: B.ByteString -> Int -> IO [(Int, Entry)]
+decodeWithOffset :: BL.ByteString -> Int -> IO [(Int, Entry)]
 decodeWithOffset content offset = do
-    let content' = B.drop (fromIntegral offset) content
-    if content' == B.empty
+    let content' = BL.drop (fromIntegral offset) content
+    if content' == BL.empty
     then do pure []
     else do
         let entry = decode content'
@@ -51,14 +61,14 @@ decodeWithOffset content offset = do
 
 readEntries :: FilePath -> IO [(Int, Entry)]
 readEntries filepath = do
-    content <- B.readFile filepath
+    content <- BL.readFile filepath
     decodeWithOffset content 0
 
 readValueFromPos :: FilePath -> Int64 -> Int64 -> IO Value
 readValueFromPos filepath vsize offset = do
-    content <- B.readFile filepath
-    pure $ runGet (getLazyByteString vsize) (B.drop offset content)
+    content <- BL.readFile filepath
+    pure $ runGet (getLazyByteString vsize) (BL.drop offset content)
 
 createCaskLock :: FilePath -> IO ()
 createCaskLock dirpath = do
-    B.writeFile (dirpath ++ "cask.lock") ""
+    BL.writeFile (dirpath </> "cask.lock") ""

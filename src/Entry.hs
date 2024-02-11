@@ -5,7 +5,7 @@ import qualified Data.ByteString.Lazy.UTF8 as BU
 
 import Data.Digest.CRC32 (crc32)
 import Data.Int (Int64)
-import Data.String.Interpolate
+import Data.String.Interpolate (i)
 import Data.Time (nominalDiffTimeToSeconds)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Word (Word32)

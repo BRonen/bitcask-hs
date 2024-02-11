@@ -2,6 +2,8 @@ module Keydir where
 
 import qualified Data.Map as Map
 
+import System.FilePath ((</>))
+
 import Caskfile (listCaskFiles, readEntries, getFileIdFromPath, readValueFromPos)
 import Entry (Entry (..), Checksum, FieldSize, Timestamp, Key, Value)
 
@@ -30,7 +32,7 @@ buildKeyDir :: FilePath -> IO Keydir
 buildKeyDir dirpath = do
     caskfiles <- listCaskFiles dirpath
     keydirs <- mapM (\caskfile -> do
-        let caskpath = dirpath ++ "/" ++ caskfile
+        let caskpath = dirpath </> caskfile
         entries <- readEntries caskpath
         pure $ mapEntriesToKeydir caskpath entries
         ) caskfiles
