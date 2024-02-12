@@ -13,13 +13,10 @@ withTemporaryDirectory tmpdir = bracket setUp tearDown
     tearDown _ = removeDirectoryRecursive tmpdir
 
 test :: TestTree
-test = testGroup "Bitcask module" [testClose, testOpen]
+test = testGroup "Bitcask module" [testOpenClose]
 
-testOpen :: TestTree
-testOpen = testGroup "Open function" [test1]
-
-testClose :: TestTree
-testClose = testGroup "Close function" [test2]
+testOpenClose :: TestTree
+testOpenClose = testGroup "Open and Close functions" [test1, test2]
 
 test1 :: TestTree
 test1 = testCase "Should error on attempt to instance a second writer" $
