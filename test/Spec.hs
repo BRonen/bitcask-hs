@@ -1,11 +1,13 @@
 module Main (main) where
 
+import qualified Unit.BitcaskSpec as BCSpec
+
 import Test.Tasty
-import Test.Tasty.HUnit
+import Test.Tasty.HUnit ( testCase, (@?=), assertBool )
 
 main :: IO ()
 main = do
-  defaultMain $ testGroup "Root" [test1, test2]
+  defaultMain $ testGroup "Root" [BCSpec.test, test1, test2]
 
 test1 :: TestTree
 test1 = testCase "2+2=4" $ (2 + 2 :: Integer) @?= (4 :: Integer)

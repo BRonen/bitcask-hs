@@ -2,8 +2,7 @@
 -- See Hoogle, http://www.haskell.org/hoogle/
 
 
--- | Please see the README on GitHub at
---   <a>https://github.com/bronen/bitcask-hs#readme</a>
+-- | Inspired by <a><a>https://riak.com/assets/bitcask-intro.pdf</a></a>.
 @package bitcask-hs
 @version 0.1.0.0
 
