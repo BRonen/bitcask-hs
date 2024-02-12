@@ -1,4 +1,4 @@
-module Unit.BitcaskSpec (test) where
+module BitcaskSpec (test) where
 
 import qualified Bitcask as BC
 import Control.Exception (bracket)

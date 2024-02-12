@@ -1,8 +1,8 @@
 module Main (main) where
 
+import qualified BitcaskSpec as BCSpec
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit (assertBool, testCase, (@?=))
-import qualified Unit.BitcaskSpec as BCSpec
 
 main :: IO ()
 main = do
