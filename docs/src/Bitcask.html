@@ -1,39 +1,37 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Bitcask</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Bitcask.html#open"><span class="hs-identifier">open</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Bitcask.html#put"><span class="hs-identifier">put</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Bitcask.html#get"><span class="hs-identifier">get</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Bitcask.html#delete"><span class="hs-identifier">delete</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Bitcask.html#listKeys"><span class="hs-identifier">listKeys</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Bitcask.html#merge"><span class="hs-identifier">merge</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Bitcask.html#close"><span class="hs-identifier">close</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-2"></span><span>
-</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
-</span><span id="line-4"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Caskfile.html"><span class="hs-identifier">Caskfile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier">getCurrentFileId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#prependEntry"><span class="hs-identifier">prependEntry</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#removePrevFiles"><span class="hs-identifier">removePrevFiles</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
 </span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.String.Interpolate</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">i</span></span><span class="hs-special">)</span><span>
-</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FileLock</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">FileLock</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">SharedExclusive</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">tryLockFile</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">unlockFile</span></span><span class="hs-special">)</span><span>
-</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FilePath</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&lt;/&gt;)</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">dropFileName</span></span><span class="hs-special">)</span><span>
-</span><span id="line-8"></span><span>
-</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier">Key</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier">Value</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#buildEntry"><span class="hs-identifier">buildEntry</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#nanosSinceEpoch"><span class="hs-identifier">nanosSinceEpoch</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Keydir.html"><span class="hs-identifier">Keydir</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Keydir.html#buildKeyDir"><span class="hs-identifier">buildKeyDir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#getValueFromKeydir"><span class="hs-identifier">getValueFromKeydir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier">listKeysFromKeydir</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Caskfile.html"><span class="hs-identifier">Caskfile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier">getCurrentFileId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#prependEntry"><span class="hs-identifier">prependEntry</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Caskfile.html#removePrevFiles"><span class="hs-identifier">removePrevFiles</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Entry.html"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier">Entry</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier">Key</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier">Value</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#buildEntry"><span class="hs-identifier">buildEntry</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Entry.html#nanosSinceEpoch"><span class="hs-identifier">nanosSinceEpoch</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Keydir.html"><span class="hs-identifier">Keydir</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Keydir.html#buildKeyDir"><span class="hs-identifier">buildKeyDir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#getValueFromKeydir"><span class="hs-identifier">getValueFromKeydir</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier">listKeysFromKeydir</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FileLock</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">FileLock</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">SharedExclusive</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">tryLockFile</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">unlockFile</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.FilePath</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">dropFileName</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-operator">(&lt;/&gt;)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">data</span><span> </span><span id="Handle"><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-var">Handle</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Handle"><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-var">Handle</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FileLock</span></span><span>
 </span><span id="line-12"></span><span>
-</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="Handle"><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-var">Handle</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Handle"><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-var">Handle</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FileLock</span></span><span>
-</span><span id="line-14"></span><span>
-</span><span id="line-15"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073528"><span id="local-6989586621679073533"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-16"></span><span>    </span><span id="local-6989586621679073542"><span class="annot"><span class="annottext">show :: Handle -&gt; String
+</span><span id="line-13"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073528"><span id="local-6989586621679073533"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-14"></span><span>  </span><span id="local-6989586621679073542"><span class="annot"><span class="annottext">show :: Handle -&gt; String
 </span><a href="#local-6989586621679073542"><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span id="local-6989586621679073544"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073544"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span id="local-6989586621679073545"><span class="annot"><span class="annottext">Bool
 </span><a href="#local-6989586621679073545"><span class="hs-identifier hs-var">isWriter</span></a></span></span><span> </span><span class="annot"><span class="annottext">FileLock
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="">[i|Handle - #{filepath} #{isWriter} lockfile|]</span></span><span>
-</span><span id="line-17"></span><span>    </span><span>
-</span><span id="line-18"></span><span class="annot"><a href="Bitcask.html#tombstone"><span class="hs-identifier hs-type">tombstone</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span>
-</span><span id="line-19"></span><span id="tombstone"><span class="annot"><span class="annottext">tombstone :: ByteString
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="annot"><a href="Bitcask.html#tombstone"><span class="hs-identifier hs-type">tombstone</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">B.ByteString</span></span><span>
+</span><span id="line-17"></span><span id="tombstone"><span class="annot"><span class="annottext">tombstone :: ByteString
 </span><a href="Bitcask.html#tombstone"><span class="hs-identifier hs-var hs-var">tombstone</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><span class="hs-string">&quot;__BITCASK_TOMBSTONE__&quot;</span></span><span>
-</span><span id="line-20"></span><span>
-</span><span id="line-21"></span><span class="annot"><a href="Bitcask.html#open"><span class="hs-identifier hs-type">open</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-22"></span><span id="open"><span class="annot"><span class="annottext">open :: String -&gt; Bool -&gt; IO (Either String Handle)
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="annot"><a href="Bitcask.html#open"><span class="hs-identifier hs-type">open</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span id="open"><span class="annot"><span class="annottext">open :: String -&gt; Bool -&gt; IO (Either String Handle)
 </span><a href="Bitcask.html#open"><span class="hs-identifier hs-var hs-var">open</span></a></span></span><span> </span><span id="local-6989586621679073550"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073550"><span class="hs-identifier hs-var">dirpath</span></a></span></span><span> </span><span id="local-6989586621679073551"><span class="annot"><span class="annottext">Bool
 </span><a href="#local-6989586621679073551"><span class="hs-identifier hs-var">isWriter</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-23"></span><span>    </span><span id="local-6989586621679073552"><span class="annot"><span class="annottext">Int
+</span><span id="line-21"></span><span>  </span><span id="local-6989586621679073552"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679073552"><span class="hs-identifier hs-var">currentFileid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Int
 </span><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier hs-var">getCurrentFileId</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073550"><span class="hs-identifier hs-var">dirpath</span></a></span><span>
-</span><span id="line-24"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073557"><span class="annot"><span class="annottext">filepath :: String
+</span><span id="line-22"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073557"><span class="annot"><span class="annottext">filepath :: String
 </span><a href="#local-6989586621679073557"><span class="hs-identifier hs-var hs-var">filepath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073550"><span class="hs-identifier hs-var">dirpath</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 </span><span class="hs-operator hs-var">&lt;/&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
@@ -43,22 +41,22 @@ forall a. Show a =&gt; a -&gt; String
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;.cask&quot;</span></span><span>
-</span><span id="line-25"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073558"><span class="annot"><span class="annottext">lockpath :: String
+</span><span id="line-23"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073558"><span class="annot"><span class="annottext">lockpath :: String
 </span><a href="#local-6989586621679073558"><span class="hs-identifier hs-var hs-var">lockpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073550"><span class="hs-identifier hs-var">dirpath</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 </span><span class="hs-operator hs-var">&lt;/&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;cask.lock&quot;</span></span><span>
-</span><span id="line-26"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073559"><span class="annot"><span class="annottext">locktype :: SharedExclusive
+</span><span id="line-24"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073559"><span class="annot"><span class="annottext">locktype :: SharedExclusive
 </span><a href="#local-6989586621679073559"><span class="hs-identifier hs-var hs-var">locktype</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><a href="#local-6989586621679073551"><span class="hs-identifier hs-var">isWriter</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">SharedExclusive
 </span><span class="hs-identifier hs-var">Exclusive</span></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">SharedExclusive
 </span><span class="hs-identifier hs-var">Shared</span></span><span>
-</span><span id="line-27"></span><span>    </span><span id="local-6989586621679073562"><span class="annot"><span class="annottext">Maybe FileLock
+</span><span id="line-25"></span><span>  </span><span id="local-6989586621679073562"><span class="annot"><span class="annottext">Maybe FileLock
 </span><a href="#local-6989586621679073562"><span class="hs-identifier hs-var">flock</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; SharedExclusive -&gt; IO (Maybe FileLock)
 </span><span class="hs-identifier hs-var">tryLockFile</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073558"><span class="hs-identifier hs-var">lockpath</span></a></span><span> </span><span class="annot"><span class="annottext">SharedExclusive
 </span><a href="#local-6989586621679073559"><span class="hs-identifier hs-var">locktype</span></a></span><span>
-</span><span id="line-28"></span><span>    </span><span class="annot"><span class="annottext">Either String Handle -&gt; IO (Either String Handle)
+</span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">Either String Handle -&gt; IO (Either String Handle)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either String Handle -&gt; IO (Either String Handle))
@@ -66,7 +64,7 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe FileLock
 </span><a href="#local-6989586621679073562"><span class="hs-identifier hs-var">flock</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-29"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679073563"><span class="annot"><span class="annottext">FileLock
+</span><span id="line-27"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679073563"><span class="annot"><span class="annottext">FileLock
 </span><a href="#local-6989586621679073563"><span class="hs-identifier hs-var">flock'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handle -&gt; Either String Handle
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Handle -&gt; Either String Handle) -&gt; Handle -&gt; Either String Handle
@@ -76,38 +74,38 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><a href="#local-6989586621679073557"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><a href="#local-6989586621679073551"><span class="hs-identifier hs-var">isWriter</span></a></span><span> </span><span class="annot"><span class="annottext">FileLock
 </span><a href="#local-6989586621679073563"><span class="hs-identifier hs-var">flock'</span></a></span><span>
-</span><span id="line-30"></span><span>        </span><span class="annot"><span class="annottext">Maybe FileLock
+</span><span id="line-28"></span><span>    </span><span class="annot"><span class="annottext">Maybe FileLock
 </span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Handle
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;Unable to lock file&quot;</span></span><span>
-</span><span id="line-31"></span><span>
-</span><span id="line-32"></span><span class="annot"><a href="Bitcask.html#put"><span class="hs-identifier hs-type">put</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-33"></span><span id="put"><span class="annot"><span class="annottext">put :: Handle -&gt; ByteString -&gt; ByteString -&gt; IO (Either String Entry)
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="annot"><a href="Bitcask.html#put"><span class="hs-identifier hs-type">put</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Entry.html#Entry"><span class="hs-identifier hs-type">Entry</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span id="put"><span class="annot"><span class="annottext">put :: Handle -&gt; ByteString -&gt; ByteString -&gt; IO (Either String Entry)
 </span><a href="Bitcask.html#put"><span class="hs-identifier hs-var hs-var">put</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span id="local-6989586621679073564"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073564"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span id="local-6989586621679073565"><span class="annot"><span class="annottext">Bool
 </span><a href="#local-6989586621679073565"><span class="hs-identifier hs-var">isWriter</span></a></span></span><span> </span><span class="annot"><span class="annottext">FileLock
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073566"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073566"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span id="local-6989586621679073567"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073567"><span class="hs-identifier hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-34"></span><span>    </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span id="line-32"></span><span>  </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><a href="#local-6989586621679073565"><span class="hs-identifier hs-var">isWriter</span></a></span><span>
-</span><span id="line-35"></span><span>        </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-36"></span><span>            </span><span id="local-6989586621679073568"><span class="annot"><span class="annottext">Timestamp
+</span><span id="line-33"></span><span>    </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-34"></span><span>      </span><span id="local-6989586621679073568"><span class="annot"><span class="annottext">Timestamp
 </span><a href="#local-6989586621679073568"><span class="hs-identifier hs-var">timestamp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Timestamp
 </span><a href="Entry.html#nanosSinceEpoch"><span class="hs-identifier hs-var">nanosSinceEpoch</span></a></span><span>
-</span><span id="line-37"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073569"><span class="annot"><span class="annottext">entry :: Entry
+</span><span id="line-35"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073569"><span class="annot"><span class="annottext">entry :: Entry
 </span><a href="#local-6989586621679073569"><span class="hs-identifier hs-var hs-var">entry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Timestamp -&gt; ByteString -&gt; ByteString -&gt; Entry
 </span><a href="Entry.html#buildEntry"><span class="hs-identifier hs-var">buildEntry</span></a></span><span> </span><span class="annot"><span class="annottext">Timestamp
 </span><a href="#local-6989586621679073568"><span class="hs-identifier hs-var">timestamp</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073566"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073567"><span class="hs-identifier hs-var">value</span></a></span><span>
-</span><span id="line-38"></span><span>            </span><span id="local-6989586621679073570"><span class="annot"><span class="annottext">Entry
+</span><span id="line-36"></span><span>      </span><span id="local-6989586621679073570"><span class="annot"><span class="annottext">Entry
 </span><a href="#local-6989586621679073570"><span class="hs-identifier hs-var">entry'</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Entry -&gt; IO Entry
 </span><a href="Caskfile.html#prependEntry"><span class="hs-identifier hs-var">prependEntry</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073564"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="annot"><span class="annottext">Entry
 </span><a href="#local-6989586621679073569"><span class="hs-identifier hs-var">entry</span></a></span><span>
-</span><span id="line-39"></span><span>            </span><span class="annot"><span class="annottext">Either String Entry -&gt; IO (Either String Entry)
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">Either String Entry -&gt; IO (Either String Entry)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either String Entry -&gt; IO (Either String Entry))
@@ -117,7 +115,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">Entry
 </span><a href="#local-6989586621679073570"><span class="hs-identifier hs-var">entry'</span></a></span><span>
-</span><span id="line-40"></span><span>        </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Either String Entry -&gt; IO (Either String Entry)
+</span><span id="line-38"></span><span>    </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Either String Entry -&gt; IO (Either String Entry)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either String Entry -&gt; IO (Either String Entry))
@@ -127,25 +125,25 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;Not a writer instance&quot;</span></span><span>
-</span><span id="line-41"></span><span>
-</span><span id="line-42"></span><span class="annot"><a href="Bitcask.html#get"><span class="hs-identifier hs-type">get</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-43"></span><span id="get"><span class="annot"><span class="annottext">get :: Handle -&gt; ByteString -&gt; IO (Maybe ByteString)
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span class="annot"><a href="Bitcask.html#get"><span class="hs-identifier hs-type">get</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Entry.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span id="get"><span class="annot"><span class="annottext">get :: Handle -&gt; ByteString -&gt; IO (Maybe ByteString)
 </span><a href="Bitcask.html#get"><span class="hs-identifier hs-var hs-var">get</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span id="local-6989586621679073571"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073571"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">FileLock
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073572"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073572"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-44"></span><span>    </span><span id="local-6989586621679073573"><span class="annot"><span class="annottext">Keydir
+</span><span id="line-42"></span><span>  </span><span id="local-6989586621679073573"><span class="annot"><span class="annottext">Keydir
 </span><a href="#local-6989586621679073573"><span class="hs-identifier hs-var">keydir</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Keydir
 </span><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-var">buildKeyDir</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShowS
 </span><span class="hs-identifier hs-var">dropFileName</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073571"><span class="hs-identifier hs-var">filepath</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621679073574"><span class="annot"><span class="annottext">Maybe ByteString
+</span><span id="line-43"></span><span>  </span><span id="local-6989586621679073574"><span class="annot"><span class="annottext">Maybe ByteString
 </span><a href="#local-6989586621679073574"><span class="hs-identifier hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Keydir -&gt; ByteString -&gt; IO (Maybe ByteString)
 </span><a href="Keydir.html#getValueFromKeydir"><span class="hs-identifier hs-var">getValueFromKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">Keydir
 </span><a href="#local-6989586621679073573"><span class="hs-identifier hs-var">keydir</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073572"><span class="hs-identifier hs-var">key</span></a></span><span>
-</span><span id="line-46"></span><span>    </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; IO (Maybe ByteString)
+</span><span id="line-44"></span><span>  </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; IO (Maybe ByteString)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe ByteString -&gt; IO (Maybe ByteString))
@@ -153,7 +151,7 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
 </span><a href="#local-6989586621679073574"><span class="hs-identifier hs-var">value</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-47"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679073575"><span class="annot"><span class="annottext">ByteString
+</span><span id="line-45"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679073575"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073575"><span class="hs-identifier hs-var">value'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073575"><span class="hs-identifier hs-var">value'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
@@ -164,23 +162,23 @@ forall a. Maybe a
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073575"><span class="hs-identifier hs-var">value'</span></a></span><span>
-</span><span id="line-48"></span><span>        </span><span class="annot"><span class="annottext">Maybe ByteString
+</span><span id="line-46"></span><span>    </span><span class="annot"><span class="annottext">Maybe ByteString
 </span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-49"></span><span>
-</span><span id="line-50"></span><span class="annot"><a href="Bitcask.html#delete"><span class="hs-identifier hs-type">delete</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-51"></span><span id="delete"><span class="annot"><span class="annottext">delete :: Handle -&gt; ByteString -&gt; IO (Either String ())
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="annot"><a href="Bitcask.html#delete"><span class="hs-identifier hs-type">delete</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span id="delete"><span class="annot"><span class="annottext">delete :: Handle -&gt; ByteString -&gt; IO (Either String ())
 </span><a href="Bitcask.html#delete"><span class="hs-identifier hs-var hs-var">delete</span></a></span></span><span> </span><span id="local-6989586621679073576"><span class="annot"><span class="annottext">Handle
 </span><a href="#local-6989586621679073576"><span class="hs-identifier hs-var">handle</span></a></span></span><span> </span><span id="local-6989586621679073577"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073577"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-52"></span><span>    </span><span id="local-6989586621679073578"><span class="annot"><span class="annottext">Either String Entry
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679073578"><span class="annot"><span class="annottext">Either String Entry
 </span><a href="#local-6989586621679073578"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; ByteString -&gt; IO (Either String Entry)
 </span><a href="Bitcask.html#put"><span class="hs-identifier hs-var">put</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
 </span><a href="#local-6989586621679073576"><span class="hs-identifier hs-var">handle</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073577"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="Bitcask.html#tombstone"><span class="hs-identifier hs-var">tombstone</span></a></span><span>
-</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">Either String () -&gt; IO (Either String ())
+</span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">Either String () -&gt; IO (Either String ())
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either String () -&gt; IO (Either String ()))
@@ -188,28 +186,28 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either String Entry
 </span><a href="#local-6989586621679073578"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-54"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679073579"><span class="annot"><span class="annottext">String
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679073579"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073579"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String ()
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073579"><span class="hs-identifier hs-var">err</span></a></span><span>
-</span><span id="line-55"></span><span>        </span><span class="annot"><span class="annottext">Either String Entry
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">Either String Entry
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Either String ()
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span class="annot"><a href="Bitcask.html#listKeys"><span class="hs-identifier hs-type">listKeys</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-58"></span><span id="listKeys"><span class="annot"><span class="annottext">listKeys :: Handle -&gt; IO [ByteString]
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span class="annot"><a href="Bitcask.html#listKeys"><span class="hs-identifier hs-type">listKeys</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Entry.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-56"></span><span id="listKeys"><span class="annot"><span class="annottext">listKeys :: Handle -&gt; IO [ByteString]
 </span><a href="Bitcask.html#listKeys"><span class="hs-identifier hs-var hs-var">listKeys</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span id="local-6989586621679073580"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073580"><span class="hs-identifier hs-var">filepath</span></a></span></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">FileLock
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-59"></span><span>    </span><span id="local-6989586621679073581"><span class="annot"><span class="annottext">Keydir
+</span><span id="line-57"></span><span>  </span><span id="local-6989586621679073581"><span class="annot"><span class="annottext">Keydir
 </span><a href="#local-6989586621679073581"><span class="hs-identifier hs-var">keydir</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Keydir
 </span><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-var">buildKeyDir</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShowS
 </span><span class="hs-identifier hs-var">dropFileName</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073580"><span class="hs-identifier hs-var">filepath</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">[ByteString] -&gt; IO [ByteString]
+</span><span id="line-58"></span><span>  </span><span class="annot"><span class="annottext">[ByteString] -&gt; IO [ByteString]
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">([ByteString] -&gt; IO [ByteString])
@@ -218,22 +216,22 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Keydir -&gt; [ByteString]
 </span><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier hs-var">listKeysFromKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">Keydir
 </span><a href="#local-6989586621679073581"><span class="hs-identifier hs-var">keydir</span></a></span><span>
-</span><span id="line-61"></span><span>
-</span><span id="line-62"></span><span class="annot"><a href="Bitcask.html#merge"><span class="hs-identifier hs-type">merge</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-63"></span><span id="merge"><span class="annot"><span class="annottext">merge :: Handle -&gt; IO (Either String Handle)
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="annot"><a href="Bitcask.html#merge"><span class="hs-identifier hs-type">merge</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span id="merge"><span class="annot"><span class="annottext">merge :: Handle -&gt; IO (Either String Handle)
 </span><a href="Bitcask.html#merge"><span class="hs-identifier hs-var hs-var">merge</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Bitcask.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span id="local-6989586621679073582"><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073582"><span class="hs-identifier hs-var">filepath'</span></a></span></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">True</span></span><span> </span><span id="local-6989586621679073583"><span class="annot"><span class="annottext">FileLock
 </span><a href="#local-6989586621679073583"><span class="hs-identifier hs-var">filelock</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-64"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073584"><span class="annot"><span class="annottext">dirpath :: String
+</span><span id="line-62"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073584"><span class="annot"><span class="annottext">dirpath :: String
 </span><a href="#local-6989586621679073584"><span class="hs-identifier hs-var hs-var">dirpath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShowS
 </span><span class="hs-identifier hs-var">dropFileName</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073582"><span class="hs-identifier hs-var">filepath'</span></a></span><span>
-</span><span id="line-65"></span><span>    </span><span id="local-6989586621679073585"><span class="annot"><span class="annottext">Int
+</span><span id="line-63"></span><span>  </span><span id="local-6989586621679073585"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679073585"><span class="hs-identifier hs-var">currentFileid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Int
 </span><a href="Caskfile.html#getCurrentFileId"><span class="hs-identifier hs-var">getCurrentFileId</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073584"><span class="hs-identifier hs-var">dirpath</span></a></span><span>
-</span><span id="line-66"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073589"><span class="annot"><span class="annottext">filepath :: String
+</span><span id="line-64"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073589"><span class="annot"><span class="annottext">filepath :: String
 </span><a href="#local-6989586621679073589"><span class="hs-identifier hs-var hs-var">filepath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073584"><span class="hs-identifier hs-var">dirpath</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 </span><span class="hs-operator hs-var">&lt;/&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
@@ -243,41 +241,42 @@ forall a. Show a =&gt; a -&gt; String
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;.cask&quot;</span></span><span>
-</span><span id="line-67"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073590"><span class="annot"><span class="annottext">handle' :: Handle
+</span><span id="line-65"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073590"><span class="annot"><span class="annottext">handle' :: Handle
 </span><a href="#local-6989586621679073590"><span class="hs-identifier hs-var hs-var">handle'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Bool -&gt; FileLock -&gt; Handle
 </span><a href="Bitcask.html#Handle"><span class="hs-identifier hs-var">Handle</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073589"><span class="hs-identifier hs-var">filepath</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">True</span></span><span> </span><span class="annot"><span class="annottext">FileLock
 </span><a href="#local-6989586621679073583"><span class="hs-identifier hs-var">filelock</span></a></span><span>
-</span><span id="line-68"></span><span>    </span><span id="local-6989586621679073591"><span class="annot"><span class="annottext">Keydir
+</span><span id="line-66"></span><span>  </span><span id="local-6989586621679073591"><span class="annot"><span class="annottext">Keydir
 </span><a href="#local-6989586621679073591"><span class="hs-identifier hs-var">keydir</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Keydir
 </span><a href="Keydir.html#buildKeyDir"><span class="hs-identifier hs-var">buildKeyDir</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShowS
 </span><span class="hs-identifier hs-var">dropFileName</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073589"><span class="hs-identifier hs-var">filepath</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-69"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073592"><span class="annot"><span class="annottext">keys :: [ByteString]
+</span><span id="line-67"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073592"><span class="annot"><span class="annottext">keys :: [ByteString]
 </span><a href="#local-6989586621679073592"><span class="hs-identifier hs-var hs-var">keys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Keydir -&gt; [ByteString]
 </span><a href="Keydir.html#listKeysFromKeydir"><span class="hs-identifier hs-var">listKeysFromKeydir</span></a></span><span> </span><span class="annot"><span class="annottext">Keydir
 </span><a href="#local-6989586621679073591"><span class="hs-identifier hs-var">keydir</span></a></span><span>
-</span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either String Entry)) -&gt; [ByteString] -&gt; IO ()
+</span><span id="line-68"></span><span>  </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either String Entry)) -&gt; [ByteString] -&gt; IO ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
 (a -&gt; m b) -&gt; t a -&gt; m ()
-</span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679073594"><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-identifier hs-var">mapM_</span></span><span>
+</span><span id="line-69"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073594"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073594"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-71"></span><span>        </span><span id="local-6989586621679073595"><span class="annot"><span class="annottext">Maybe ByteString
+</span><span id="line-70"></span><span>        </span><span id="local-6989586621679073595"><span class="annot"><span class="annottext">Maybe ByteString
 </span><a href="#local-6989586621679073595"><span class="hs-identifier hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO (Maybe ByteString)
 </span><a href="Bitcask.html#get"><span class="hs-identifier hs-var">get</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
 </span><a href="#local-6989586621679073590"><span class="hs-identifier hs-var">handle'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073594"><span class="hs-identifier hs-var">key</span></a></span><span>
-</span><span id="line-72"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
+</span><span id="line-71"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
 </span><a href="#local-6989586621679073595"><span class="hs-identifier hs-var">value</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-73"></span><span>            </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679073596"><span class="annot"><span class="annottext">ByteString
+</span><span id="line-72"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679073596"><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073596"><span class="hs-identifier hs-var">value'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; ByteString -&gt; IO (Either String Entry)
 </span><a href="Bitcask.html#put"><span class="hs-identifier hs-var">put</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
 </span><a href="#local-6989586621679073590"><span class="hs-identifier hs-var">handle'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073594"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
 </span><a href="#local-6989586621679073596"><span class="hs-identifier hs-var">value'</span></a></span><span>
-</span><span id="line-74"></span><span>            </span><span class="annot"><span class="annottext">Maybe ByteString
+</span><span id="line-73"></span><span>          </span><span class="annot"><span class="annottext">Maybe ByteString
 </span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Either String Entry -&gt; IO (Either String Entry)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
@@ -288,12 +287,13 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;wasd&quot;</span></span><span>
-</span><span id="line-75"></span><span>        </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[ByteString]
+</span><span id="line-74"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span>    </span><span class="annot"><span class="annottext">[ByteString]
 </span><a href="#local-6989586621679073592"><span class="hs-identifier hs-var">keys</span></a></span><span>
-</span><span id="line-76"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span id="line-76"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO ()
 </span><a href="Caskfile.html#removePrevFiles"><span class="hs-identifier hs-var">removePrevFiles</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><a href="#local-6989586621679073589"><span class="hs-identifier hs-var">filepath</span></a></span><span>
-</span><span id="line-77"></span><span>    </span><span class="annot"><span class="annottext">Either String Handle -&gt; IO (Either String Handle)
+</span><span id="line-77"></span><span>  </span><span class="annot"><span class="annottext">Either String Handle -&gt; IO (Either String Handle)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either String Handle -&gt; IO (Either String Handle))
@@ -305,7 +305,7 @@ forall a b. b -&gt; Either a b
 </span><a href="#local-6989586621679073590"><span class="hs-identifier hs-var">handle'</span></a></span><span>
 </span><span id="line-78"></span><span class="annot"><a href="Bitcask.html#merge"><span class="hs-identifier hs-var">merge</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-79"></span><span>    </span><span class="annot"><span class="annottext">Either String Handle -&gt; IO (Either String Handle)
+</span><span id="line-79"></span><span>  </span><span class="annot"><span class="annottext">Either String Handle -&gt; IO (Either String Handle)
 forall a. a -&gt; IO a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Either String Handle -&gt; IO (Either String Handle))
