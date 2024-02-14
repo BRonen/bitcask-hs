@@ -1,4 +1,4 @@
-module Bitcask (open, put, get, delete, listKeys, merge, close) where
+module Bitcask (Handle, open, put, get, delete, listKeys, merge, close) where
 
 import Caskfile (getCurrentFileId, prependEntry, removePrevFiles)
 import qualified Data.ByteString.Lazy as B
